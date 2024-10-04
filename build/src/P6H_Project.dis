@@ -3971,7 +3971,7 @@ Disassembly of section .text:
 1000226a:	46c0      	nop			; (mov r8, r8)
 1000226c:	10009760 	.word	0x10009760
 10002270:	10009770 	.word	0x10009770
-10002274:	10008bd0 	.word	0x10008bd0
+10002274:	1000976c 	.word	0x1000976c
 
 10002278 <runtime_init>:
 10002278:	b570      	push	{r4, r5, r6, lr}
@@ -7287,7 +7287,7 @@ Disassembly of section .text:
 10003d04:	b510      	push	{r4, lr}
 10003d06:	4801      	ldr	r0, [pc, #4]	; (10003d0c <missing_float_func_shim+0x8>)
 10003d08:	f7fe fb32 	bl	10002370 <panic>
-10003d0c:	10008bd0 	.word	0x10008bd0
+10003d0c:	1000976c 	.word	0x1000976c
 
 10003d10 <__aeabi_float_init>:
 10003d10:	b570      	push	{r4, r5, r6, lr}

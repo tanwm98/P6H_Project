@@ -61,7 +61,7 @@
 367	729	7497276883239415	src/CMakeFiles/P6H_Project.dir/C_/Program_Files/Raspberry_Pi/Pico_SDK_v1.5.1/pico-sdk/src/rp2_common/pico_float/float_init_rom.c.obj	7006e93d2c4a1b0e
 2419	2902	7497276905266463	src/CMakeFiles/P6H_Project.dir/C_/Program_Files/Raspberry_Pi/Pico_SDK_v1.5.1/pico-sdk/lib/lwip/src/api/api_lib.c.obj	7b3d3a41003edc87
 510	691	7497274351798975	src/CMakeFiles/P6H_Project.dir/C_/Program_Files/Raspberry_Pi/Pico_SDK_v1.5.1/pico-sdk/src/rp2_common/pico_float/float_aeabi.S.obj	ae1eadb2c1726581
-26	583	7497276881880194	src/CMakeFiles/P6H_Project.dir/main.c.obj	4fd3e4e163b1b6d0
+24	256	7497286864250178	src/CMakeFiles/P6H_Project.dir/main.c.obj	4fd3e4e163b1b6d0
 559	698	7497274352000559	src/CMakeFiles/P6H_Project.dir/C_/Program_Files/Raspberry_Pi/Pico_SDK_v1.5.1/pico-sdk/src/rp2_common/pico_float/float_v1_rom_shim.S.obj	60eda5cc57e865c0
 77	655	7497276882701374	src/CMakeFiles/P6H_Project.dir/C_/Program_Files/Raspberry_Pi/Pico_SDK_v1.5.1/pico-sdk/src/common/pico_time/time.c.obj	4e76e726e2dc7053
 597	819	7497274353100095	src/CMakeFiles/P6H_Project.dir/C_/Program_Files/Raspberry_Pi/Pico_SDK_v1.5.1/pico-sdk/src/rp2_common/pico_standard_link/crt0.S.obj	515114ad6646c8b6
@@ -180,7 +180,7 @@
 4150	4464	7497276920910597	src/CMakeFiles/P6H_Project.dir/C_/Users/tanwm/Desktop/FreeRTOS-Kernel-main/stream_buffer.c.obj	981316edd82fc2fb
 4197	4602	7497276922240200	src/CMakeFiles/P6H_Project.dir/C_/Users/tanwm/Desktop/FreeRTOS-Kernel-main/tasks.c.obj	8b888754e059b093
 3745	4780	7497276924053485	src/CMakeFiles/P6H_Project.dir/C_/Program_Files/Raspberry_Pi/Pico_SDK_v1.5.1/pico-sdk/lib/cyw43-driver/src/cyw43_ll.c.obj	5117d053f064f82e
-4780	5099	7497276926100870	src/P6H_Project.elf	84cad1a1b4a3d25e
+256	574	7497286866252024	src/P6H_Project.elf	84cad1a1b4a3d25e
 769	1016	7497276886196334	src/CMakeFiles/P6H_Project.dir/C_/Program_Files/Raspberry_Pi/Pico_SDK_v1.5.1/pico-sdk/lib/tinyusb/src/class/dfu/dfu_device.c.obj	9c89674581b57a39
 540	1142	7497276887477068	src/CMakeFiles/P6H_Project.dir/C_/Program_Files/Raspberry_Pi/Pico_SDK_v1.5.1/pico-sdk/src/rp2_common/pico_stdio_usb/stdio_usb.c.obj	3fe479cc5273bb17
 533	1050	7497276886491167	src/CMakeFiles/P6H_Project.dir/C_/Program_Files/Raspberry_Pi/Pico_SDK_v1.5.1/pico-sdk/src/rp2_common/pico_stdio_usb/reset_interface.c.obj	9ba50788d9852b38

@@ -1,5 +1,15 @@
 add_executable(${NAME}
     main.c
+    # uncomment once you configured
+    # src/main.c
+    # src/comms/uart.c
+    # src/comms/spi.c
+    # src/comms/i2c.c
+    # src/signals/pwm.c
+    # src/signals/signal_monitor.c
+    # src/debugger/debugger.c
+    # src/wifi/wifi_dashboard.c
+    # src/data/data_logger.c     
 )
 
 target_include_directories(${NAME} PRIVATE
