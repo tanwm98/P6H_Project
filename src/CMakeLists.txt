@@ -1,15 +1,8 @@
 add_executable(${NAME}
     main.c
-    # uncomment once you configured
-    # src/main.c
-    # src/comms/uart.c
-    # src/comms/spi.c
-    # src/comms/i2c.c
-    # src/signals/pwm.c
-    # src/signals/signal_monitor.c
-    # src/debugger/debugger.c
-    # src/wifi/wifi_dashboard.c
-    # src/data/data_logger.c     
+    buddy3/digital_comms.c
+    buddy3/signal_generator.c
+    buddy3/automate.c     
 )
 
 target_include_directories(${NAME} PRIVATE
@@ -27,6 +20,8 @@ target_link_libraries(${NAME}
     pico_stdlib
     pico_cyw43_arch_lwip_sys_freertos
     FreeRTOS-Kernel-Heap4
+    hardware_uart 
+    hardware_pwm
 )
 
 pico_enable_stdio_usb(${NAME} 1)    # Disable USB printf

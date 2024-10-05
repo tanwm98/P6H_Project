@@ -6,13 +6,17 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
-void mainTask(__unused void *params) {
-    while(1) {
-        for(int i = 1; i <= 255; i++) {
-            printf("Hello World!!: %d\n", i);
-            sleep_ms(1000);
-        }
-    }
+
+// idk when we gonna use FreeRTOS tbh
+
+
+// void mainTask(__unused void *params) {
+//     while(1) {
+//         for(int i = 1; i <= 255; i++) {
+//             printf("Hello World!!: %d\n", i);
+//             sleep_ms(1000);
+//         }
+//     }
 
     /*
 
@@ -24,20 +28,22 @@ void mainTask(__unused void *params) {
     cyw43_arch_enable_sta_mode();
 
     */
-}
+// }
 
-void vLaunch() {
-    TaskHandle_t task;
-    xTaskCreate(mainTask, "MainTaskThread", 256, NULL, 1, &task);
-    vTaskStartScheduler();
-}
+// void vLaunch() {
+//     TaskHandle_t task;
+//     xTaskCreate(mainTask, "MainTaskThread", 256, NULL, 1, &task);
+//     vTaskStartScheduler();
+// }
 
 int main() {
     stdio_init_all();
+    digital_comms_init();
+    signal_generator_init();
+    automation_init();
 
-    vLaunch();
-
-    while(true);
-
-    return 0;
+    while (true) {
+        process_uart_command();
+        sleep_ms(10); // Small delay to prevent tight looping
+    }
 }
