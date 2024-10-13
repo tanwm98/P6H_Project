@@ -8,34 +8,34 @@
 		},
 		"paths" : 
 		{
-			"cmake" : "C:/gcc/mingw64/bin/cmake.exe",
-			"cpack" : "C:/gcc/mingw64/bin/cpack.exe",
-			"ctest" : "C:/gcc/mingw64/bin/ctest.exe",
-			"root" : "C:/gcc/mingw64/share/cmake-3.27"
+			"cmake" : "C:/Program Files/Raspberry Pi/Pico SDK v1.5.1/cmake/bin/cmake.exe",
+			"cpack" : "C:/Program Files/Raspberry Pi/Pico SDK v1.5.1/cmake/bin/cpack.exe",
+			"ctest" : "C:/Program Files/Raspberry Pi/Pico SDK v1.5.1/cmake/bin/ctest.exe",
+			"root" : "C:/Program Files/Raspberry Pi/Pico SDK v1.5.1/cmake/share/cmake-3.25"
 		},
 		"version" : 
 		{
 			"isDirty" : false,
 			"major" : 3,
-			"minor" : 27,
-			"patch" : 1,
-			"string" : "3.27.1",
+			"minor" : 25,
+			"patch" : 2,
+			"string" : "3.25.2",
 			"suffix" : ""
 		}
 	},
 	"objects" : 
 	[
 		{
-			"jsonFile" : "codemodel-v2-d200e10db71046ee084d.json",
+			"jsonFile" : "codemodel-v2-2bfde678135983bb1f6a.json",
 			"kind" : "codemodel",
 			"version" : 
 			{
 				"major" : 2,
-				"minor" : 6
+				"minor" : 4
 			}
 		},
 		{
-			"jsonFile" : "cache-v2-e35d164a369d6f140215.json",
+			"jsonFile" : "cache-v2-4d5ea5c9b38c4fe0a358.json",
 			"kind" : "cache",
 			"version" : 
 			{
@@ -44,7 +44,7 @@
 			}
 		},
 		{
-			"jsonFile" : "cmakeFiles-v1-fd1ec68dd70622202bff.json",
+			"jsonFile" : "cmakeFiles-v1-30dec583d36f54e328b0.json",
 			"kind" : "cmakeFiles",
 			"version" : 
 			{
@@ -53,7 +53,7 @@
 			}
 		},
 		{
-			"jsonFile" : "toolchains-v1-33586363dbe2d5851363.json",
+			"jsonFile" : "toolchains-v1-51066bc5eb008415b332.json",
 			"kind" : "toolchains",
 			"version" : 
 			{
@@ -90,7 +90,7 @@
 				"responses" : 
 				[
 					{
-						"jsonFile" : "cache-v2-e35d164a369d6f140215.json",
+						"jsonFile" : "cache-v2-4d5ea5c9b38c4fe0a358.json",
 						"kind" : "cache",
 						"version" : 
 						{
@@ -99,16 +99,16 @@
 						}
 					},
 					{
-						"jsonFile" : "codemodel-v2-d200e10db71046ee084d.json",
+						"jsonFile" : "codemodel-v2-2bfde678135983bb1f6a.json",
 						"kind" : "codemodel",
 						"version" : 
 						{
 							"major" : 2,
-							"minor" : 6
+							"minor" : 4
 						}
 					},
 					{
-						"jsonFile" : "toolchains-v1-33586363dbe2d5851363.json",
+						"jsonFile" : "toolchains-v1-51066bc5eb008415b332.json",
 						"kind" : "toolchains",
 						"version" : 
 						{
@@ -117,7 +117,7 @@
 						}
 					},
 					{
-						"jsonFile" : "cmakeFiles-v1-fd1ec68dd70622202bff.json",
+						"jsonFile" : "cmakeFiles-v1-30dec583d36f54e328b0.json",
 						"kind" : "cmakeFiles",
 						"version" : 
 						{

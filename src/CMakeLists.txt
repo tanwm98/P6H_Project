@@ -3,7 +3,9 @@ add_executable(${NAME}
     buddy3/digital_comms.c
     buddy3/signal_generator.c
     buddy3/automate.c     
+    buddy3/i2c/i2c.c
 )
+
 
 target_include_directories(${NAME} PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}
@@ -22,9 +24,12 @@ target_link_libraries(${NAME}
     FreeRTOS-Kernel-Heap4
     hardware_uart 
     hardware_pwm
+    hardware_spi
+    hardware_i2c
+    hardware_gpio
 )
 
-pico_enable_stdio_usb(${NAME} 1)    # Disable USB printf
-pico_enable_stdio_uart(${NAME} 0)   # Enable UART printf
+pico_enable_stdio_usb(${NAME} 1)
+pico_enable_stdio_uart(${NAME} 1)
 
 pico_add_extra_outputs(${NAME})

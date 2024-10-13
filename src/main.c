@@ -7,6 +7,12 @@
 #include "task.h"
 
 
+#include "buddy3/digital_comms.h"
+#include "buddy3/signal_generator.h"
+#include "buddy3/i2c/i2c.h"
+#include "buddy3/automate.h"
+
+
 // idk when we gonna use FreeRTOS tbh
 
 
@@ -37,13 +43,29 @@
 // }
 
 int main() {
-    stdio_init_all();
-    digital_comms_init();
-    signal_generator_init();
-    automation_init();
+    stdio_init_all();  // Initialize standard I/O (for UART prints, etc.)
+    printf("Starting main function\n");
+    sleep_ms(2000);  // Give some time for serial to initialize
+    // Perform an initial I2C scan at 100kHz baud rate to detect connected slaves
+    
+    i2c_simple_write_test();
+    //i2c_scan(100000);
 
+    // Initialize all the components of the system
+    //digital_comms_init();      // Initialize UART and other digital communication
+    //signal_generator_init();   // Initialize signal generator GPIOs
+    //automation_init();         // Initialize automation processes (I2C setup, etc.)
+
+    // Main loop for running automated sequences and handling UART commands
     while (true) {
+        // Process UART commands (e.g., receiving instructions from the user)
         process_uart_command();
-        sleep_ms(10); // Small delay to prevent tight looping
+
+        // Optionally, you can trigger the automated sequence periodically or based on conditions.
+        // This is an example of running the automated sequence after receiving UART data:
+        run_automated_sequence();
+
+        // Small delay to prevent tight looping
+        sleep_ms(10);
     }
 }
