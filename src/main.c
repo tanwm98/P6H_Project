@@ -9,7 +9,7 @@
 void mainTask(__unused void *params) {
     while(1) {
         for(int i = 1; i <= 255; i++) {
-            printf("Hello World!!!: %d\n", i);
+            printf("Hello World!!: %d\n", i);
             sleep_ms(1000);
         }
     }
