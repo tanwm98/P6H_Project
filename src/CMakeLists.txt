@@ -1,6 +1,6 @@
 add_executable(${NAME}
     main.c
-    buddy3/digital_comms.c
+    buddy3/uart/uart.c
     buddy3/signal_generator.c
     buddy3/automate.c     
     buddy3/i2c/i2c.c
