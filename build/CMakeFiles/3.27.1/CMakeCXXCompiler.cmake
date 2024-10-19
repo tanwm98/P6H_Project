@@ -28,6 +28,7 @@ set(CMAKE_RANLIB "C:/Program Files/Raspberry Pi/Pico SDK v1.5.1/gcc-arm-none-eab
 set(CMAKE_CXX_COMPILER_RANLIB "C:/Program Files/Raspberry Pi/Pico SDK v1.5.1/gcc-arm-none-eabi/bin/arm-none-eabi-gcc-ranlib.exe")
 set(CMAKE_LINKER "C:/Program Files/Raspberry Pi/Pico SDK v1.5.1/gcc-arm-none-eabi/bin/arm-none-eabi-ld.exe")
 set(CMAKE_MT "")
+set(CMAKE_TAPI "CMAKE_TAPI-NOTFOUND")
 set(CMAKE_COMPILER_IS_GNUCXX 1)
 set(CMAKE_CXX_COMPILER_LOADED 1)
 set(CMAKE_CXX_COMPILER_WORKS TRUE)
@@ -36,7 +37,7 @@ set(CMAKE_CXX_ABI_COMPILED TRUE)
 set(CMAKE_CXX_COMPILER_ENV_VAR "CXX")
 
 set(CMAKE_CXX_COMPILER_ID_RUN 1)
-set(CMAKE_CXX_SOURCE_FILE_EXTENSIONS C;M;c++;cc;cpp;cxx;m;mm;mpp;CPP;ixx;cppm)
+set(CMAKE_CXX_SOURCE_FILE_EXTENSIONS C;M;c++;cc;cpp;cxx;m;mm;mpp;CPP;ixx;cppm;ccm;cxxm;c++m)
 set(CMAKE_CXX_IGNORE_EXTENSIONS inl;h;hpp;HPP;H;o;O;obj;OBJ;def;DEF;rc;RC)
 
 foreach (lang C OBJC OBJCXX)
@@ -49,6 +50,7 @@ endforeach()
 
 set(CMAKE_CXX_LINKER_PREFERENCE 30)
 set(CMAKE_CXX_LINKER_PREFERENCE_PROPAGATES 1)
+set(CMAKE_CXX_LINKER_DEPFILE_SUPPORTED TRUE)
 
 # Save compiler ABI information.
 set(CMAKE_CXX_SIZEOF_DATA_PTR "4")
@@ -79,5 +81,5 @@ endif()
 
 set(CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES "C:/Program Files/Raspberry Pi/Pico SDK v1.5.1/gcc-arm-none-eabi/arm-none-eabi/include/c++/10.3.1;C:/Program Files/Raspberry Pi/Pico SDK v1.5.1/gcc-arm-none-eabi/arm-none-eabi/include/c++/10.3.1/arm-none-eabi/thumb/v6-m/nofp;C:/Program Files/Raspberry Pi/Pico SDK v1.5.1/gcc-arm-none-eabi/arm-none-eabi/include/c++/10.3.1/backward;C:/Program Files/Raspberry Pi/Pico SDK v1.5.1/gcc-arm-none-eabi/lib/gcc/arm-none-eabi/10.3.1/include;C:/Program Files/Raspberry Pi/Pico SDK v1.5.1/gcc-arm-none-eabi/lib/gcc/arm-none-eabi/10.3.1/include-fixed;C:/Program Files/Raspberry Pi/Pico SDK v1.5.1/gcc-arm-none-eabi/arm-none-eabi/include")
 set(CMAKE_CXX_IMPLICIT_LINK_LIBRARIES "")
-set(CMAKE_CXX_IMPLICIT_LINK_DIRECTORIES "")
+set(CMAKE_CXX_IMPLICIT_LINK_DIRECTORIES "C:/Program Files/Raspberry Pi/Pico SDK v1.5.1/gcc-arm-none-eabi/lib/gcc/arm-none-eabi/10.3.1/thumb/v6-m/nofp;C:/Program Files/Raspberry Pi/Pico SDK v1.5.1/gcc-arm-none-eabi/arm-none-eabi/lib/thumb/v6-m/nofp;C:/Program Files/Raspberry Pi/Pico SDK v1.5.1/gcc-arm-none-eabi/lib/gcc/arm-none-eabi/10.3.1;C:/Program Files/Raspberry Pi/Pico SDK v1.5.1/gcc-arm-none-eabi/lib/gcc;C:/Program Files/Raspberry Pi/Pico SDK v1.5.1/gcc-arm-none-eabi/arm-none-eabi/lib")
 set(CMAKE_CXX_IMPLICIT_LINK_FRAMEWORK_DIRECTORIES "")

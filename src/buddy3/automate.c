@@ -1,6 +1,5 @@
 #include "automate.h"
 #include "signal_generator.h"
-#include "digital_comms.h"
 #include "hardware/uart.h"
 
 #define UART_ID uart1

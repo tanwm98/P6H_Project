@@ -38,7 +38,7 @@
 		},
 		{
 			"isGenerated" : true,
-			"path" : "build/CMakeFiles/3.26.4-msvc4/CMakeSystem.cmake"
+			"path" : "build/CMakeFiles/3.27.1/CMakeSystem.cmake"
 		},
 		{
 			"isExternal" : true,
@@ -55,34 +55,34 @@
 		{
 			"isCMake" : true,
 			"isExternal" : true,
-			"path" : "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.26/Modules/CMakeSystemSpecificInitialize.cmake"
+			"path" : "C:/gcc/mingw64/share/cmake-3.27/Modules/CMakeSystemSpecificInitialize.cmake"
 		},
 		{
 			"isGenerated" : true,
-			"path" : "build/CMakeFiles/3.26.4-msvc4/CMakeCCompiler.cmake"
+			"path" : "build/CMakeFiles/3.27.1/CMakeCCompiler.cmake"
 		},
 		{
 			"isGenerated" : true,
-			"path" : "build/CMakeFiles/3.26.4-msvc4/CMakeCXXCompiler.cmake"
+			"path" : "build/CMakeFiles/3.27.1/CMakeCXXCompiler.cmake"
 		},
 		{
 			"isGenerated" : true,
-			"path" : "build/CMakeFiles/3.26.4-msvc4/CMakeASMCompiler.cmake"
+			"path" : "build/CMakeFiles/3.27.1/CMakeASMCompiler.cmake"
 		},
 		{
 			"isCMake" : true,
 			"isExternal" : true,
-			"path" : "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.26/Modules/CMakeSystemSpecificInformation.cmake"
+			"path" : "C:/gcc/mingw64/share/cmake-3.27/Modules/CMakeSystemSpecificInformation.cmake"
 		},
 		{
 			"isCMake" : true,
 			"isExternal" : true,
-			"path" : "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.26/Modules/CMakeGenericSystem.cmake"
+			"path" : "C:/gcc/mingw64/share/cmake-3.27/Modules/CMakeGenericSystem.cmake"
 		},
 		{
 			"isCMake" : true,
 			"isExternal" : true,
-			"path" : "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.26/Modules/CMakeInitializeConfigs.cmake"
+			"path" : "C:/gcc/mingw64/share/cmake-3.27/Modules/CMakeInitializeConfigs.cmake"
 		},
 		{
 			"isExternal" : true,
@@ -91,27 +91,27 @@
 		{
 			"isCMake" : true,
 			"isExternal" : true,
-			"path" : "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.26/Modules/CMakeCInformation.cmake"
+			"path" : "C:/gcc/mingw64/share/cmake-3.27/Modules/CMakeCInformation.cmake"
 		},
 		{
 			"isCMake" : true,
 			"isExternal" : true,
-			"path" : "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.26/Modules/CMakeLanguageInformation.cmake"
+			"path" : "C:/gcc/mingw64/share/cmake-3.27/Modules/CMakeLanguageInformation.cmake"
 		},
 		{
 			"isCMake" : true,
 			"isExternal" : true,
-			"path" : "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.26/Modules/Compiler/GNU-C.cmake"
+			"path" : "C:/gcc/mingw64/share/cmake-3.27/Modules/Compiler/GNU-C.cmake"
 		},
 		{
 			"isCMake" : true,
 			"isExternal" : true,
-			"path" : "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.26/Modules/Compiler/GNU.cmake"
+			"path" : "C:/gcc/mingw64/share/cmake-3.27/Modules/Compiler/GNU.cmake"
 		},
 		{
 			"isCMake" : true,
 			"isExternal" : true,
-			"path" : "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.26/Modules/Compiler/CMakeCommonCompilerMacros.cmake"
+			"path" : "C:/gcc/mingw64/share/cmake-3.27/Modules/Compiler/CMakeCommonCompilerMacros.cmake"
 		},
 		{
 			"isExternal" : true,
@@ -120,27 +120,27 @@
 		{
 			"isCMake" : true,
 			"isExternal" : true,
-			"path" : "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.26/Modules/CMakeCommonLanguageInclude.cmake"
+			"path" : "C:/gcc/mingw64/share/cmake-3.27/Modules/CMakeCommonLanguageInclude.cmake"
 		},
 		{
 			"isCMake" : true,
 			"isExternal" : true,
-			"path" : "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.26/Modules/CMakeCXXInformation.cmake"
+			"path" : "C:/gcc/mingw64/share/cmake-3.27/Modules/CMakeCXXInformation.cmake"
 		},
 		{
 			"isCMake" : true,
 			"isExternal" : true,
-			"path" : "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.26/Modules/CMakeLanguageInformation.cmake"
+			"path" : "C:/gcc/mingw64/share/cmake-3.27/Modules/CMakeLanguageInformation.cmake"
 		},
 		{
 			"isCMake" : true,
 			"isExternal" : true,
-			"path" : "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.26/Modules/Compiler/GNU-CXX.cmake"
+			"path" : "C:/gcc/mingw64/share/cmake-3.27/Modules/Compiler/GNU-CXX.cmake"
 		},
 		{
 			"isCMake" : true,
 			"isExternal" : true,
-			"path" : "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.26/Modules/Compiler/GNU.cmake"
+			"path" : "C:/gcc/mingw64/share/cmake-3.27/Modules/Compiler/GNU.cmake"
 		},
 		{
 			"isExternal" : true,
@@ -149,22 +149,22 @@
 		{
 			"isCMake" : true,
 			"isExternal" : true,
-			"path" : "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.26/Modules/CMakeCommonLanguageInclude.cmake"
+			"path" : "C:/gcc/mingw64/share/cmake-3.27/Modules/CMakeCommonLanguageInclude.cmake"
 		},
 		{
 			"isCMake" : true,
 			"isExternal" : true,
-			"path" : "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.26/Modules/CMakeASMInformation.cmake"
+			"path" : "C:/gcc/mingw64/share/cmake-3.27/Modules/CMakeASMInformation.cmake"
 		},
 		{
 			"isCMake" : true,
 			"isExternal" : true,
-			"path" : "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.26/Modules/Compiler/GNU-ASM.cmake"
+			"path" : "C:/gcc/mingw64/share/cmake-3.27/Modules/Compiler/GNU-ASM.cmake"
 		},
 		{
 			"isCMake" : true,
 			"isExternal" : true,
-			"path" : "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.26/Modules/Compiler/GNU.cmake"
+			"path" : "C:/gcc/mingw64/share/cmake-3.27/Modules/Compiler/GNU.cmake"
 		},
 		{
 			"isExternal" : true,
@@ -181,17 +181,17 @@
 		{
 			"isCMake" : true,
 			"isExternal" : true,
-			"path" : "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.26/Modules/CMakeASMInformation.cmake"
+			"path" : "C:/gcc/mingw64/share/cmake-3.27/Modules/CMakeASMInformation.cmake"
 		},
 		{
 			"isCMake" : true,
 			"isExternal" : true,
-			"path" : "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.26/Modules/Compiler/GNU-ASM.cmake"
+			"path" : "C:/gcc/mingw64/share/cmake-3.27/Modules/Compiler/GNU-ASM.cmake"
 		},
 		{
 			"isCMake" : true,
 			"isExternal" : true,
-			"path" : "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.26/Modules/Compiler/GNU.cmake"
+			"path" : "C:/gcc/mingw64/share/cmake-3.27/Modules/Compiler/GNU.cmake"
 		},
 		{
 			"isExternal" : true,
@@ -232,17 +232,17 @@
 		{
 			"isCMake" : true,
 			"isExternal" : true,
-			"path" : "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.26/Modules/CMakeASMInformation.cmake"
+			"path" : "C:/gcc/mingw64/share/cmake-3.27/Modules/CMakeASMInformation.cmake"
 		},
 		{
 			"isCMake" : true,
 			"isExternal" : true,
-			"path" : "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.26/Modules/Compiler/GNU-ASM.cmake"
+			"path" : "C:/gcc/mingw64/share/cmake-3.27/Modules/Compiler/GNU-ASM.cmake"
 		},
 		{
 			"isCMake" : true,
 			"isExternal" : true,
-			"path" : "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.26/Modules/Compiler/GNU.cmake"
+			"path" : "C:/gcc/mingw64/share/cmake-3.27/Modules/Compiler/GNU.cmake"
 		},
 		{
 			"isExternal" : true,
@@ -407,22 +407,22 @@
 		{
 			"isCMake" : true,
 			"isExternal" : true,
-			"path" : "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.26/Modules/FindPython3.cmake"
+			"path" : "C:/gcc/mingw64/share/cmake-3.27/Modules/FindPython3.cmake"
 		},
 		{
 			"isCMake" : true,
 			"isExternal" : true,
-			"path" : "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.26/Modules/FindPython/Support.cmake"
+			"path" : "C:/gcc/mingw64/share/cmake-3.27/Modules/FindPython/Support.cmake"
 		},
 		{
 			"isCMake" : true,
 			"isExternal" : true,
-			"path" : "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.26/Modules/FindPackageHandleStandardArgs.cmake"
+			"path" : "C:/gcc/mingw64/share/cmake-3.27/Modules/FindPackageHandleStandardArgs.cmake"
 		},
 		{
 			"isCMake" : true,
 			"isExternal" : true,
-			"path" : "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.26/Modules/FindPackageMessage.cmake"
+			"path" : "C:/gcc/mingw64/share/cmake-3.27/Modules/FindPackageMessage.cmake"
 		},
 		{
 			"isExternal" : true,
@@ -619,17 +619,17 @@
 		{
 			"isCMake" : true,
 			"isExternal" : true,
-			"path" : "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.26/Modules/FindDoxygen.cmake"
+			"path" : "C:/gcc/mingw64/share/cmake-3.27/Modules/FindDoxygen.cmake"
 		},
 		{
 			"isCMake" : true,
 			"isExternal" : true,
-			"path" : "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.26/Modules/FindPackageHandleStandardArgs.cmake"
+			"path" : "C:/gcc/mingw64/share/cmake-3.27/Modules/FindPackageHandleStandardArgs.cmake"
 		},
 		{
 			"isCMake" : true,
 			"isExternal" : true,
-			"path" : "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.26/Modules/FindPackageMessage.cmake"
+			"path" : "C:/gcc/mingw64/share/cmake-3.27/Modules/FindPackageMessage.cmake"
 		},
 		{
 			"isExternal" : true,

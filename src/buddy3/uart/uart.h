@@ -1,5 +1,8 @@
-#ifndef DIGITAL_COMMS_H
-#define DIGITAL_COMMS_H
+#ifndef UART_H
+#define UART_H
+
+
+#include "hardware/uart.h"
 
 void uart_init();
 #endif
