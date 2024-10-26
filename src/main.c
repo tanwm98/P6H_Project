@@ -2,6 +2,7 @@
 #include "pico/stdlib.h"
 #include "hardware/pwm.h"
 #include "hardware/gpio.h"
+#include "buddy3/uart/uart.h"
 
 #define PWM_PIN 2     // GP2 for PWM
 #define DIR_PIN1 0    // GP0 for direction
@@ -44,5 +45,18 @@ void generate_pulse(uint pin, uint32_t width_ms) {
 
 int main() {
     stdio_init_all();
+    uart_init_all();
+    sleep_ms(1000);
+
+    while (1) {
+        uart_send_string("Hello from Pico W!\r\n");
+        sleep_ms(1000);
+
+        if (uart_is_readable(UART_ID)) {
+            char c = uart_receive_char();
+            printf("Received: %c\n", c);
+        }
+    }
+
     return 0;
 }
