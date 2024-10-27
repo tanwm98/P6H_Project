@@ -2,92 +2,128 @@
 #include "pico/stdlib.h"
 #include "hardware/pwm.h"
 #include "hardware/gpio.h"
+#include "buddy3/signal_generator.h"
 
-#define PWM_PIN 2     // GP2 for PWM
-#define DIR_PIN1 0    // GP0 for direction
-#define DIR_PIN2 1    // GP1 for direction
-#define PULSE_PIN 16  // GP16 for pulse generation
-#define BUTTON_A 20   // GP20 for Button A (PWM change & Pulse ON)
-#define BUTTON_B 21   // GP21 for Button B (PWM change & Pulse OFF)
-
-#define PULSE_WIDTH 2000  // Pulse width in milliseconds (2 seconds)
-
-volatile bool button_a_pressed = false;
-volatile bool button_b_pressed = false;
-
-void button_callback(uint gpio, uint32_t events) {
-    if (gpio == BUTTON_A) {
-        button_a_pressed = true;
-    } else if (gpio == BUTTON_B) {
-        button_b_pressed = true;
-    }
-}
-
-void setup_pwm(uint gpio, float freq, float duty_cycle) {
-    gpio_set_function(gpio, GPIO_FUNC_PWM);
-    uint slice_num = pwm_gpio_to_slice_num(gpio);
-    float clock_freq = 125000000.0f;
-    uint32_t divider = clock_freq / (freq * 65536);
-    pwm_set_clkdiv(slice_num, divider);
-    pwm_set_wrap(slice_num, 65535);
-    pwm_set_gpio_level(gpio, (uint16_t)(duty_cycle * 65535));
-    pwm_set_enabled(slice_num, true);
-}
-
-void generate_pulse(uint pin, uint32_t width_ms) {
-    printf("Pulse HIGH for %u ms\n", width_ms);
-    gpio_put(pin, 1);
-    sleep_ms(width_ms);
-    printf("Pulse LOW\n");
-    gpio_put(pin, 0);
-}
 
 int main() {
     stdio_init_all();
+    sleep_ms(2000);
     
-    // Initialize motor control pins
-    gpio_init(DIR_PIN1);
-    gpio_init(DIR_PIN2);
-    gpio_set_dir(DIR_PIN1, GPIO_OUT);
-    gpio_set_dir(DIR_PIN2, GPIO_OUT);
+    printf("\nSignal Generator & UART Analyzer - Week 10 Test\n");
+    signal_generator_init();
     
-    // Initialize pulse pin
-    gpio_init(PULSE_PIN);
-    gpio_set_dir(PULSE_PIN, GPIO_OUT);
+    // Test sequence
+    sequence_data_t test_sequence = {
+        .pulses = {
+            {0,      true},
+            {1000,   false},
+            {2000,   true},
+            {3000,   false},
+            {4000,   true},
+            {5000,   false},
+            {6000,   true},
+            {7000,   false},
+            {8000,   true},
+            {9000,   false}
+        },
+        .count = 10,
+        .sequence_verified = false
+    };
     
-    // Set up button interrupts
-    gpio_set_irq_enabled_with_callback(BUTTON_A, GPIO_IRQ_EDGE_RISE, true, &button_callback);
-    gpio_set_irq_enabled_with_callback(BUTTON_B, GPIO_IRQ_EDGE_RISE, true, &button_callback);
-    sleep_ms(2000); // Wait for initialization
-
-    // Initial PWM setup
-    setup_pwm(PWM_PIN, 100.0f, 0.5f); // Initial state: 100Hz, 50% duty cycle
-    
-    printf("System Ready\n");
-    printf("Button A: Change PWM to 100Hz, 25%% & Generate %ums pulse\n", PULSE_WIDTH);
-    printf("Button B: Change PWM to 200Hz, 50%% & Turn Pulse OFF\n");
-    
+    // Main test loop
     while (1) {
-        // Forward direction
-        gpio_put(DIR_PIN1, 1);
-        gpio_put(DIR_PIN2, 0);
+        printf("\nTest Menu:\n");
+        printf("1. Generate pulse sequence\n");
+        printf("2. Analyze UART signal\n");
+        printf("3. Exit\n");
+        printf("Choice: ");
         
-        if (button_a_pressed) {
-            setup_pwm(PWM_PIN, 100.0f, 0.25f); // 100Hz, 25% duty cycle
-            printf("PWM set to 100Hz, 25%% duty cycle\n");
-            generate_pulse(PULSE_PIN, PULSE_WIDTH);  // Generate a 2-second pulse
-            button_a_pressed = false;
+        char choice = getchar();
+        printf("\n");
+        
+        switch (choice) {
+            case '1':
+                printf("Running pulse sequence test...\n");
+                signal_status_t status = reproduce_sequence(&test_sequence);
+                
+                // Direct status handling
+                switch(status) {
+                    case SG_SUCCESS:
+                        printf("Sequence completed successfully\n");
+                        break;
+                    case SG_ERROR_INVALID_DATA:
+                        printf("Error: Invalid sequence data\n");
+                        break;
+                    case SG_ERROR_TIMING:
+                        printf("Error: Timing requirements not met\n");
+                        break;
+                    case SG_ERROR_SEQUENCE_FAIL:
+                        printf("Error: Sequence generation failed\n");
+                        break;
+                    default:
+                        printf("Error: Unknown status code\n");
+                }
+                break;
+            case '2': {
+                uart_result_t result = analyze_uart_signal(1000);
+                if (result.is_valid) {
+                    printf("UART Analysis: %lu baud (±%.1f%%)\n", 
+                           result.baud_rate, result.error_margin);
+                } else {
+                    printf("UART Analysis failed\n");
+                }
+                break;
+            }
+            case 'q':
+                return 0;
+            default:
+                printf("Invalid choice\n");
         }
         
-        if (button_b_pressed) {
-            setup_pwm(PWM_PIN, 200.0f, 0.5f); // 200Hz, 50% duty cycle
-            printf("PWM set to 200Hz, 50%% duty cycle\n");
-            gpio_put(PULSE_PIN, 0);  // Ensure pulse is OFF
-            button_b_pressed = false;
-        }
-        
-        sleep_ms(100);  // Small delay for debouncing
+        sleep_ms(1000);
     }
     
     return 0;
 }
+
+
+// Version 2: Integration-Ready Main (Theoretical Overview)
+/*
+// External component interfaces (provided by other buddies)
+extern void dashboard_update_uart(uart_result_t result);  // Buddy 5
+extern sequence_data_t* storage_get_sequence(void);       // Buddy 1
+extern void signal_task(void);                           // Task scheduler
+
+// Main system tasks
+void uart_analysis_task(void) {
+    uart_result_t result = analyze_uart_signal(1000);
+    if (result.is_valid) {
+        dashboard_update_uart(result);  // Send to dashboard
+    }
+}
+
+void pulse_generation_task(void) {
+    sequence_data_t* sequence = storage_get_sequence();  // Get from storage
+    if (sequence != NULL) {
+        reproduce_sequence(sequence);
+    }
+}
+
+// Main function for integrated system
+int main() {
+    // System initialization
+    stdio_init_all();
+    signal_generator_init();
+    
+    // Register tasks with scheduler
+    register_task(uart_analysis_task, 100);    // Run every 100ms
+    register_task(pulse_generation_task, 500); // Run every 500ms
+    
+    // Start scheduler
+    start_scheduler();
+    
+    while (1) {
+        __wfi();  // Wait for interrupt
+    }
+}
+*/

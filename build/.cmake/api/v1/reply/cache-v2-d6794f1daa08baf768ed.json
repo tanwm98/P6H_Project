@@ -539,7 +539,7 @@
 				}
 			],
 			"type" : "FILEPATH",
-			"value" : "C:/mingw64/bin/dlltool.exe"
+			"value" : "C:/gcc/mingw64/bin/dlltool.exe"
 		},
 		{
 			"name" : "CMAKE_EDIT_COMMAND",
@@ -1283,7 +1283,7 @@
 				}
 			],
 			"type" : "FILEPATH",
-			"value" : "DOXYGEN_EXECUTABLE-NOTFOUND"
+			"value" : "C:/gcc/mingw64/bin/doxygen.exe"
 		},
 		{
 			"name" : "FAMILY_MCUS",
@@ -1307,7 +1307,7 @@
 				}
 			],
 			"type" : "INTERNAL",
-			"value" : "[C:/Program Files/WindowsApps/PythonSoftwareFoundation.Python.3.11_3.11.2544.0_x64__qbz5n2kfra8p0/python3.11.exe][cfound components: Interpreter ][v3.11.9()]"
+			"value" : "[C:/Users/tanwm/AppData/Local/Programs/Python/Python311/python.exe][cfound components: Interpreter ][v3.11.4()]"
 		},
 		{
 			"name" : "FREERTOS_KERNEL_PATH",
@@ -1775,7 +1775,7 @@
 				}
 			],
 			"type" : "INTERNAL",
-			"value" : "C:/Program Files/WindowsApps/PythonSoftwareFoundation.Python.3.11_3.11.2544.0_x64__qbz5n2kfra8p0/python3.11.exe"
+			"value" : "C:/Users/tanwm/AppData/Local/Programs/Python/Python311/python.exe"
 		},
 		{
 			"name" : "_Python3_INTERPRETER_PROPERTIES",
@@ -1787,7 +1787,7 @@
 				}
 			],
 			"type" : "INTERNAL",
-			"value" : "Python;3;11;9;32;;;C:\\Program Files\\WindowsApps\\PythonSoftwareFoundation.Python.3.11_3.11.2544.0_x64__qbz5n2kfra8p0\\Lib;C:\\Program Files\\WindowsApps\\PythonSoftwareFoundation.Python.3.11_3.11.2544.0_x64__qbz5n2kfra8p0\\Lib;C:\\Program Files\\WindowsApps\\PythonSoftwareFoundation.Python.3.11_3.11.2544.0_x64__qbz5n2kfra8p0\\Lib\\site-packages;C:\\Program Files\\WindowsApps\\PythonSoftwareFoundation.Python.3.11_3.11.2544.0_x64__qbz5n2kfra8p0\\Lib\\site-packages"
+			"value" : "Python;3;11;4;32;;;C:\\Users\\tanwm\\AppData\\Local\\Programs\\Python\\Python311\\Lib;C:\\Users\\tanwm\\AppData\\Local\\Programs\\Python\\Python311\\Lib;C:\\Users\\tanwm\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\site-packages;C:\\Users\\tanwm\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\site-packages"
 		},
 		{
 			"name" : "_Python3_INTERPRETER_SIGNATURE",
@@ -1799,7 +1799,7 @@
 				}
 			],
 			"type" : "INTERNAL",
-			"value" : "ce6f60250b8d155a5a70f5b1d03a4af8"
+			"value" : "a6c114330edfb0c2095a8b90b7445f82"
 		},
 		{
 			"name" : "_Python3_Interpreter_REASON_FAILURE",

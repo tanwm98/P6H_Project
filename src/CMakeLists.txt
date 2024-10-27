@@ -1,9 +1,6 @@
 add_executable(${NAME}
     main.c
-    buddy3/uart/uart.c
     buddy3/signal_generator.c
-    buddy3/automate.c     
-    buddy3/i2c/i2c.c
 )
 
 
@@ -30,6 +27,6 @@ target_link_libraries(${NAME}
 )
 
 pico_enable_stdio_usb(${NAME} 1)
-pico_enable_stdio_uart(${NAME} 1)
+pico_enable_stdio_uart(${NAME} 0)
 
 pico_add_extra_outputs(${NAME})
