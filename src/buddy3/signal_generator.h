@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include "pico/stdlib.h"
+#include <string.h>
 #include "hardware/gpio.h"
 #include "hardware/timer.h"
 #include "hardware/uart.h"
@@ -13,6 +14,17 @@
 // Pin definitions, change accoridngly
 #define OUTPUT_PIN 3        // GP3 for pulse output
 #define UART_MONITOR_PIN 4
+#define MAX_PULSES 10
+
+// Simulate stored pulse data (as if read from SD card)
+// This would be the data captured and stored by Buddy 1
+
+
+typedef struct {
+    uint32_t timestamp_ms;
+    bool level;
+} pulse_data_t;
+
 
 // for final project deliverable
 // #define MIN_SAMPLES_FOR_VALID_DETECTION 20
@@ -64,12 +76,6 @@ typedef enum {
     SG_ERROR_UART_INVALID
 } signal_status_t;
 
-// Pulse sequence structure
-typedef struct {
-    uint32_t timestamp;    // Microsecond timestamp
-    bool level;           // Signal level
-    bool verified;        // For verification
-} pulse_data_t;
 
 typedef struct {
     pulse_data_t pulses[10];
@@ -81,7 +87,11 @@ typedef struct {
 void signal_generator_init(void);
 
 // Pulse generation functions
-signal_status_t reproduce_sequence(const sequence_data_t* sequence);
+bool parse_pulse_line(const char* line, pulse_data_t* pulse);
+bool read_stored_sequence();
+void replay_sequence();
+int get_pulse_count(void);
+
 bool verify_sequence_timing(const sequence_data_t* sequence);
 void abort_sequence(void);
 
@@ -96,4 +106,4 @@ const char* get_status_string(signal_status_t status);
 void print_sequence_debug(const sequence_data_t* sequence);
 void print_uart_debug(const uart_result_t* result);
 
-#endif // SIGNAL_GENERATOR_H
+#endif
