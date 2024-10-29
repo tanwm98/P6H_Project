@@ -39,9 +39,9 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
-  include("C:/Users/tanwm/Desktop/P6H_Project/build/pico-sdk/tools/cmake_install.cmake")
-  include("C:/Users/tanwm/Desktop/P6H_Project/build/pico-sdk/src/cmake_install.cmake")
-  include("C:/Users/tanwm/Desktop/P6H_Project/build/pico-sdk/docs/cmake_install.cmake")
+  include("C:/Users/Zola/Desktop/P6H_Project/build/pico-sdk/tools/cmake_install.cmake")
+  include("C:/Users/Zola/Desktop/P6H_Project/build/pico-sdk/src/cmake_install.cmake")
+  include("C:/Users/Zola/Desktop/P6H_Project/build/pico-sdk/docs/cmake_install.cmake")
 
 endif()
 

@@ -2,6 +2,8 @@ add_executable(${NAME}
     main.c
     buddy3/signal_generator.c
     buddy3/test.c
+    #buddy1/sd_card.c
+    #buddy1/hw_config.c
 )
 
 
@@ -25,6 +27,7 @@ target_link_libraries(${NAME}
     hardware_spi
     hardware_i2c
     hardware_gpio
+    FatFs_SPI
 )
 
 pico_enable_stdio_usb(${NAME} 1)

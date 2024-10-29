@@ -1,4 +1,4 @@
-# Install script for directory: C:/Users/tanwm/Desktop/P6H_Project/src
+# Install script for directory: C:/Users/Zola/Desktop/P6H_Project/src
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
