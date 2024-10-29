@@ -219,7 +219,7 @@
 				}
 			],
 			"type" : "INTERNAL",
-			"value" : "25"
+			"value" : "27"
 		},
 		{
 			"name" : "CMAKE_CACHE_PATCH_VERSION",
@@ -231,7 +231,7 @@
 				}
 			],
 			"type" : "INTERNAL",
-			"value" : "2"
+			"value" : "1"
 		},
 		{
 			"name" : "CMAKE_COMMAND",
@@ -243,7 +243,7 @@
 				}
 			],
 			"type" : "INTERNAL",
-			"value" : "C:/Program Files/Raspberry Pi/Pico SDK v1.5.1/cmake/bin/cmake.exe"
+			"value" : "C:/gcc/mingw64/bin/cmake.exe"
 		},
 		{
 			"name" : "CMAKE_CPACK_COMMAND",
@@ -255,7 +255,7 @@
 				}
 			],
 			"type" : "INTERNAL",
-			"value" : "C:/Program Files/Raspberry Pi/Pico SDK v1.5.1/cmake/bin/cpack.exe"
+			"value" : "C:/gcc/mingw64/bin/cpack.exe"
 		},
 		{
 			"name" : "CMAKE_CTEST_COMMAND",
@@ -267,7 +267,7 @@
 				}
 			],
 			"type" : "INTERNAL",
-			"value" : "C:/Program Files/Raspberry Pi/Pico SDK v1.5.1/cmake/bin/ctest.exe"
+			"value" : "C:/gcc/mingw64/bin/ctest.exe"
 		},
 		{
 			"name" : "CMAKE_CXX_COMPILER",
@@ -542,18 +542,6 @@
 			"value" : "C:/gcc/mingw64/bin/dlltool.exe"
 		},
 		{
-			"name" : "CMAKE_EDIT_COMMAND",
-			"properties" : 
-			[
-				{
-					"name" : "HELPSTRING",
-					"value" : "Path to cache edit program executable."
-				}
-			],
-			"type" : "INTERNAL",
-			"value" : "C:/Program Files/Raspberry Pi/Pico SDK v1.5.1/cmake/bin/cmake-gui.exe"
-		},
-		{
 			"name" : "CMAKE_EXECUTABLE_FORMAT",
 			"properties" : 
 			[
@@ -779,11 +767,11 @@
 				},
 				{
 					"name" : "HELPSTRING",
-					"value" : "make program"
+					"value" : "Program used to build from build.ninja files."
 				}
 			],
 			"type" : "FILEPATH",
-			"value" : "C:/PROGRA~1/RASPBE~1/PICOSD~1.1/ninja/ninja.exe"
+			"value" : "C:/gcc/mingw64/bin/ninja.exe"
 		},
 		{
 			"name" : "CMAKE_MODULE_LINKER_FLAGS",
@@ -1015,7 +1003,7 @@
 				}
 			],
 			"type" : "INTERNAL",
-			"value" : "C:/Program Files/Raspberry Pi/Pico SDK v1.5.1/cmake/share/cmake-3.25"
+			"value" : "C:/gcc/mingw64/share/cmake-3.27"
 		},
 		{
 			"name" : "CMAKE_SHARED_LINKER_FLAGS",
@@ -1224,6 +1212,22 @@
 			],
 			"type" : "FILEPATH",
 			"value" : "C:/Program Files/Raspberry Pi/Pico SDK v1.5.1/gcc-arm-none-eabi/bin/arm-none-eabi-strip.exe"
+		},
+		{
+			"name" : "CMAKE_TAPI",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "Path to a program."
+				}
+			],
+			"type" : "FILEPATH",
+			"value" : "CMAKE_TAPI-NOTFOUND"
 		},
 		{
 			"name" : "CMAKE_TOOLCHAIN_FILE",
@@ -1547,7 +1551,7 @@
 				}
 			],
 			"type" : "INTERNAL",
-			"value" : " C:/Program Files/Raspberry Pi/Pico SDK v1.5.1/pico-sdk/src/rp2_common/cmsis C:/Program Files/Raspberry Pi/Pico SDK v1.5.1/pico-sdk/src/rp2040/hardware_regs C:/Program Files/Raspberry Pi/Pico SDK v1.5.1/pico-sdk/src/rp2_common/cmsis C:/Program Files/Raspberry Pi/Pico SDK v1.5.1/pico-sdk/src/rp2040/hardware_regs"
+			"value" : " C:/Program Files/Raspberry Pi/Pico SDK v1.5.1/pico-sdk/src/rp2_common/cmsis C:/Program Files/Raspberry Pi/Pico SDK v1.5.1/pico-sdk/src/rp2040/hardware_regs C:/Program Files/Raspberry Pi/Pico SDK v1.5.1/pico-sdk/src/rp2_common/cmsis C:/Program Files/Raspberry Pi/Pico SDK v1.5.1/pico-sdk/src/rp2040/hardware_regs C:/Program Files/Raspberry Pi/Pico SDK v1.5.1/pico-sdk/src/rp2_common/cmsis C:/Program Files/Raspberry Pi/Pico SDK v1.5.1/pico-sdk/src/rp2040/hardware_regs C:/Program Files/Raspberry Pi/Pico SDK v1.5.1/pico-sdk/src/rp2_common/cmsis C:/Program Files/Raspberry Pi/Pico SDK v1.5.1/pico-sdk/src/rp2040/hardware_regs"
 		},
 		{
 			"name" : "PICO_DOXYGEN_PATHS",
@@ -1787,7 +1791,7 @@
 				}
 			],
 			"type" : "INTERNAL",
-			"value" : "Python;3;11;4;32;;;C:\\Users\\tanwm\\AppData\\Local\\Programs\\Python\\Python311\\Lib;C:\\Users\\tanwm\\AppData\\Local\\Programs\\Python\\Python311\\Lib;C:\\Users\\tanwm\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\site-packages;C:\\Users\\tanwm\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\site-packages"
+			"value" : "Python;3;11;4;32;64;;;abi3;C:\\Users\\tanwm\\AppData\\Local\\Programs\\Python\\Python311\\Lib;C:\\Users\\tanwm\\AppData\\Local\\Programs\\Python\\Python311\\Lib;C:\\Users\\tanwm\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\site-packages;C:\\Users\\tanwm\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\site-packages"
 		},
 		{
 			"name" : "_Python3_INTERPRETER_SIGNATURE",
@@ -1800,18 +1804,6 @@
 			],
 			"type" : "INTERNAL",
 			"value" : "a6c114330edfb0c2095a8b90b7445f82"
-		},
-		{
-			"name" : "_Python3_Interpreter_REASON_FAILURE",
-			"properties" : 
-			[
-				{
-					"name" : "HELPSTRING",
-					"value" : "Interpreter reason failure"
-				}
-			],
-			"type" : "INTERNAL",
-			"value" : ""
 		},
 		{
 			"name" : "_Python3_NumPy_REASON_FAILURE",

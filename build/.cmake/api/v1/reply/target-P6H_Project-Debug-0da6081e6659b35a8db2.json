@@ -41,7 +41,7 @@
 			{
 				"command" : 1,
 				"file" : 0,
-				"line" : 18,
+				"line" : 19,
 				"parent" : 0
 			},
 			{
@@ -83,13 +83,13 @@
 			{
 				"command" : 5,
 				"file" : 0,
-				"line" : 13,
+				"line" : 14,
 				"parent" : 0
 			},
 			{
 				"command" : 6,
 				"file" : 0,
-				"line" : 32,
+				"line" : 33,
 				"parent" : 0
 			},
 			{
@@ -101,7 +101,7 @@
 			{
 				"command" : 7,
 				"file" : 0,
-				"line" : 7,
+				"line" : 8,
 				"parent" : 0
 			}
 		]
@@ -112,7 +112,7 @@
 			"compileCommandFragments" : 
 			[
 				{
-					"fragment" : "-mcpu=cortex-m0plus -mthumb -Og -g"
+					"fragment" : "-mcpu=cortex-m0plus -mthumb -Og -g -std=gnu11"
 				},
 				{
 					"backtrace" : 2,
@@ -121,9 +121,6 @@
 				{
 					"backtrace" : 2,
 					"fragment" : "-fdata-sections"
-				},
-				{
-					"fragment" : "-std=gnu11"
 				}
 			],
 			"defines" : 
@@ -639,7 +636,7 @@
 				5,
 				6,
 				7,
-				9,
+				8,
 				10,
 				11,
 				12,
@@ -655,15 +652,15 @@
 				22,
 				23,
 				24,
-				26,
+				25,
 				27,
-				29,
-				32,
+				28,
+				30,
 				33,
-				37,
+				34,
 				38,
-				40,
-				44,
+				39,
+				41,
 				45,
 				46,
 				47,
@@ -806,7 +803,8 @@
 				184,
 				185,
 				186,
-				187
+				187,
+				188
 			]
 		},
 		{
@@ -1321,24 +1319,24 @@
 			"language" : "ASM",
 			"sourceIndexes" : 
 			[
-				8,
-				25,
-				28,
-				30,
+				9,
+				26,
+				29,
 				31,
-				34,
+				32,
 				35,
 				36,
-				39,
-				41,
-				42
+				37,
+				40,
+				42,
+				43
 			]
 		},
 		{
 			"compileCommandFragments" : 
 			[
 				{
-					"fragment" : "-mcpu=cortex-m0plus -mthumb -Og -g"
+					"fragment" : "-mcpu=cortex-m0plus -mthumb -Og -g -std=gnu++17"
 				},
 				{
 					"backtrace" : 2,
@@ -1363,9 +1361,6 @@
 				{
 					"backtrace" : 2,
 					"fragment" : "-fno-use-cxa-atexit"
-				},
-				{
-					"fragment" : "-std=gnu++17"
 				}
 			],
 			"defines" : 
@@ -1873,7 +1868,7 @@
 			},
 			"sourceIndexes" : 
 			[
-				43
+				44
 			]
 		}
 	],
@@ -2745,7 +2740,7 @@
 				5,
 				6,
 				7,
-				9,
+				8,
 				10,
 				11,
 				12,
@@ -2761,15 +2756,15 @@
 				22,
 				23,
 				24,
-				26,
+				25,
 				27,
-				29,
-				32,
+				28,
+				30,
 				33,
-				37,
+				34,
 				38,
-				40,
-				43,
+				39,
+				41,
 				44,
 				45,
 				46,
@@ -2913,24 +2908,25 @@
 				184,
 				185,
 				186,
-				187
+				187,
+				188
 			]
 		},
 		{
 			"name" : "",
 			"sourceIndexes" : 
 			[
-				8,
-				25,
-				28,
-				30,
+				9,
+				26,
+				29,
 				31,
-				34,
+				32,
 				35,
 				36,
-				39,
-				41,
-				42
+				37,
+				40,
+				42,
+				43
 			]
 		}
 	],
@@ -2946,6 +2942,12 @@
 			"backtrace" : 1,
 			"compileGroupIndex" : 0,
 			"path" : "src/buddy3/signal_generator.c",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "src/buddy3/test.c",
 			"sourceGroupIndex" : 0
 		},
 		{

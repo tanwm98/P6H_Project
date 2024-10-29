@@ -1,6 +1,7 @@
 add_executable(${NAME}
     main.c
     buddy3/signal_generator.c
+    buddy3/test.c
 )
 
 
