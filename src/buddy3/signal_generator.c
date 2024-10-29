@@ -6,6 +6,26 @@ static volatile uint32_t edge_count = 0;
 static volatile uint32_t edge_timestamps[256];
 static volatile bool sequence_running = false;
 
+
+pulse_data_t pulse_sequence[MAX_PULSES];
+int pulse_count = 0;
+
+const char stored_sequence[] = 
+    "=== PULSE_SEQUENCE_START ===\n"
+    "timestamp_ms,level\n"
+    "0,1\n"
+    "100,0\n"
+    "200,1\n"
+    "300,0\n"
+    "400,1\n"
+    "500,0\n"
+    "600,1\n"
+    "700,0\n"
+    "800,1\n"
+    "900,0\n"
+    "=== PULSE_SEQUENCE_END ===\n";
+
+
 // GPIO interrupt handler
 static void gpio_callback(uint gpio, uint32_t events) {
     if (gpio == UART_MONITOR_PIN && edge_count < 256) {
@@ -31,48 +51,91 @@ void signal_generator_init(void) {
     printf("Signal generator initialized (GP3=output, GP4=UART monitor)\n");
 }
 
-// Generate pulse sequence
-signal_status_t reproduce_sequence(const sequence_data_t* sequence) {
-    if (!sequence || sequence->count != 10) {
-        return SG_ERROR_INVALID_DATA;
+int get_pulse_count(void) {
+    return pulse_count;
+}
+
+// Function to parse a line from the stored sequence
+bool parse_pulse_line(const char* line, pulse_data_t* pulse) {
+    int timestamp;
+    int level;
+    
+    if (sscanf(line, "%d,%d", &timestamp, &level) == 2) {
+        pulse->timestamp_ms = timestamp;
+        pulse->level = level ? true : false;
+        return true;
     }
-    sequence_running = true;
-    signal_status_t final_status = SG_SUCCESS;
-    // Run sequence twice as per requirements
-    for (int replay = 0; replay < 2 && sequence_running; replay++) {
-        printf("\nStarting replay %d/2\n", replay + 1);
-        uint64_t start_time = time_us_64();
-        uint32_t timing_errors = 0;
-        // Generate each pulse
-        for (int i = 0; i < sequence->count && sequence_running; i++) {
-            // Wait for correct timestamp
-            while (time_us_64() - start_time < sequence->pulses[i].timestamp && sequence_running) {
-                tight_loop_contents();
+    return false;
+}
+
+bool read_stored_sequence() {
+    const char* current_pos = stored_sequence;
+    char line[32];
+    int line_idx = 0;
+    bool reading = false;
+    pulse_count = 0;  // Reset pulse count
+    
+    printf("Reading stored pulse sequence...\n");
+    
+    while (*current_pos) {
+        if (*current_pos == '\n') {
+            line[line_idx] = '\0';
+            
+            if (strstr(line, "PULSE_SEQUENCE_START")) {
+                reading = true;
             }
-            // Generate pulse
-            gpio_put(OUTPUT_PIN, sequence->pulses[i].level);
-            // Verify timing
-            uint64_t actual_time = time_us_64() - start_time;
-            int64_t timing_error = actual_time - sequence->pulses[i].timestamp;
-            // Log pulse details
-            printf("Pulse %d: Level=%d, Time=%lu us, Error=%lld us\n",
-                   i + 1, sequence->pulses[i].level, 
-                   (uint32_t)actual_time, timing_error);
-            if (abs(timing_error) > 50) { // 50μs error threshold
-                timing_errors++;
+            else if (strstr(line, "PULSE_SEQUENCE_END")) {
+                break;
+            }
+            else if (reading && !strstr(line, "timestamp_ms,level")) {
+                if (pulse_count < MAX_PULSES && parse_pulse_line(line, &pulse_sequence[pulse_count])) {
+                    printf("Read pulse %d: %dms, level=%d\n", 
+                           pulse_count + 1,
+                           pulse_sequence[pulse_count].timestamp_ms,
+                           pulse_sequence[pulse_count].level);
+                    pulse_count++;
+                }
+            }
+            
+            line_idx = 0;
+        } else {
+            if (line_idx < 31) {  // Prevent buffer overflow
+                line[line_idx++] = *current_pos;
             }
         }
-        // Reset output between replays
+        current_pos++;
+    }
+
+    printf("Total pulses read: %d\n", pulse_count);
+    return pulse_count > 0;  // Return true if we read any pulses
+}
+
+void replay_sequence() {
+    if (pulse_count == 0) {
+        printf("No pulses to replay!\n");
+        return;
+    }
+
+    printf("\nReplaying sequence twice...\n");
+    
+    for (int replay = 0; replay < 2; replay++) {
+        printf("\nReplay %d/2:\n", replay + 1);
+        absolute_time_t start_time = get_absolute_time();
+        
+        for (int i = 0; i < pulse_count; i++) {
+            busy_wait_until(delayed_by_ms(start_time, pulse_sequence[i].timestamp_ms));
+            gpio_put(OUTPUT_PIN, pulse_sequence[i].level);
+            
+            printf("Pulse %d: Level=%d at %dms\n",
+                   i + 1,
+                   pulse_sequence[i].level,
+                   pulse_sequence[i].timestamp_ms);
+        }
+        
         gpio_put(OUTPUT_PIN, 0);
-        // Check timing accuracy
-        if (timing_errors > 2) { // Allow up to 2 timing errors
-            final_status = SG_ERROR_TIMING;
-        }
-        // Inter-replay delay
-        sleep_ms(100);
+        printf("Replay complete\n");
+        sleep_ms(1000);
     }
-    sequence_running = false;
-    return final_status;
 }
 
 // Find closest standard baud rate
