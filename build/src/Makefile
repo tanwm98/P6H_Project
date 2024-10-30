@@ -4082,30 +4082,6 @@ C_/Program_Files/Raspberry_Pi/Pico_SDK_v1.5.1/pico-sdk/src/rp2_common/pico_stdio
 	cd C:/Users/tanwm/Desktop/P6H_Project/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/P6H_Project.dir/build.make src/CMakeFiles/P6H_Project.dir/C_/Program_Files/Raspberry_Pi/Pico_SDK_v1.5.1/pico-sdk/src/rp2_common/pico_stdio/stdio.c.s
 .PHONY : C_/Program_Files/Raspberry_Pi/Pico_SDK_v1.5.1/pico-sdk/src/rp2_common/pico_stdio/stdio.c.s
 
-C_/Program_Files/Raspberry_Pi/Pico_SDK_v1.5.1/pico-sdk/src/rp2_common/pico_stdio_uart/stdio_uart.obj: C_/Program_Files/Raspberry_Pi/Pico_SDK_v1.5.1/pico-sdk/src/rp2_common/pico_stdio_uart/stdio_uart.c.obj
-.PHONY : C_/Program_Files/Raspberry_Pi/Pico_SDK_v1.5.1/pico-sdk/src/rp2_common/pico_stdio_uart/stdio_uart.obj
-
-# target to build an object file
-C_/Program_Files/Raspberry_Pi/Pico_SDK_v1.5.1/pico-sdk/src/rp2_common/pico_stdio_uart/stdio_uart.c.obj:
-	cd C:/Users/tanwm/Desktop/P6H_Project/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/P6H_Project.dir/build.make src/CMakeFiles/P6H_Project.dir/C_/Program_Files/Raspberry_Pi/Pico_SDK_v1.5.1/pico-sdk/src/rp2_common/pico_stdio_uart/stdio_uart.c.obj
-.PHONY : C_/Program_Files/Raspberry_Pi/Pico_SDK_v1.5.1/pico-sdk/src/rp2_common/pico_stdio_uart/stdio_uart.c.obj
-
-C_/Program_Files/Raspberry_Pi/Pico_SDK_v1.5.1/pico-sdk/src/rp2_common/pico_stdio_uart/stdio_uart.i: C_/Program_Files/Raspberry_Pi/Pico_SDK_v1.5.1/pico-sdk/src/rp2_common/pico_stdio_uart/stdio_uart.c.i
-.PHONY : C_/Program_Files/Raspberry_Pi/Pico_SDK_v1.5.1/pico-sdk/src/rp2_common/pico_stdio_uart/stdio_uart.i
-
-# target to preprocess a source file
-C_/Program_Files/Raspberry_Pi/Pico_SDK_v1.5.1/pico-sdk/src/rp2_common/pico_stdio_uart/stdio_uart.c.i:
-	cd C:/Users/tanwm/Desktop/P6H_Project/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/P6H_Project.dir/build.make src/CMakeFiles/P6H_Project.dir/C_/Program_Files/Raspberry_Pi/Pico_SDK_v1.5.1/pico-sdk/src/rp2_common/pico_stdio_uart/stdio_uart.c.i
-.PHONY : C_/Program_Files/Raspberry_Pi/Pico_SDK_v1.5.1/pico-sdk/src/rp2_common/pico_stdio_uart/stdio_uart.c.i
-
-C_/Program_Files/Raspberry_Pi/Pico_SDK_v1.5.1/pico-sdk/src/rp2_common/pico_stdio_uart/stdio_uart.s: C_/Program_Files/Raspberry_Pi/Pico_SDK_v1.5.1/pico-sdk/src/rp2_common/pico_stdio_uart/stdio_uart.c.s
-.PHONY : C_/Program_Files/Raspberry_Pi/Pico_SDK_v1.5.1/pico-sdk/src/rp2_common/pico_stdio_uart/stdio_uart.s
-
-# target to generate assembly for a file
-C_/Program_Files/Raspberry_Pi/Pico_SDK_v1.5.1/pico-sdk/src/rp2_common/pico_stdio_uart/stdio_uart.c.s:
-	cd C:/Users/tanwm/Desktop/P6H_Project/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/P6H_Project.dir/build.make src/CMakeFiles/P6H_Project.dir/C_/Program_Files/Raspberry_Pi/Pico_SDK_v1.5.1/pico-sdk/src/rp2_common/pico_stdio_uart/stdio_uart.c.s
-.PHONY : C_/Program_Files/Raspberry_Pi/Pico_SDK_v1.5.1/pico-sdk/src/rp2_common/pico_stdio_uart/stdio_uart.c.s
-
 C_/Program_Files/Raspberry_Pi/Pico_SDK_v1.5.1/pico-sdk/src/rp2_common/pico_stdio_usb/reset_interface.obj: C_/Program_Files/Raspberry_Pi/Pico_SDK_v1.5.1/pico-sdk/src/rp2_common/pico_stdio_usb/reset_interface.c.obj
 .PHONY : C_/Program_Files/Raspberry_Pi/Pico_SDK_v1.5.1/pico-sdk/src/rp2_common/pico_stdio_usb/reset_interface.obj
 
@@ -4442,54 +4418,6 @@ C_/Users/tanwm/Desktop/FreeRTOS-Kernel-main/timers.c.s:
 	cd C:/Users/tanwm/Desktop/P6H_Project/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/P6H_Project.dir/build.make src/CMakeFiles/P6H_Project.dir/C_/Users/tanwm/Desktop/FreeRTOS-Kernel-main/timers.c.s
 .PHONY : C_/Users/tanwm/Desktop/FreeRTOS-Kernel-main/timers.c.s
 
-buddy3/automate.obj: buddy3/automate.c.obj
-.PHONY : buddy3/automate.obj
-
-# target to build an object file
-buddy3/automate.c.obj:
-	cd C:/Users/tanwm/Desktop/P6H_Project/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/P6H_Project.dir/build.make src/CMakeFiles/P6H_Project.dir/buddy3/automate.c.obj
-.PHONY : buddy3/automate.c.obj
-
-buddy3/automate.i: buddy3/automate.c.i
-.PHONY : buddy3/automate.i
-
-# target to preprocess a source file
-buddy3/automate.c.i:
-	cd C:/Users/tanwm/Desktop/P6H_Project/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/P6H_Project.dir/build.make src/CMakeFiles/P6H_Project.dir/buddy3/automate.c.i
-.PHONY : buddy3/automate.c.i
-
-buddy3/automate.s: buddy3/automate.c.s
-.PHONY : buddy3/automate.s
-
-# target to generate assembly for a file
-buddy3/automate.c.s:
-	cd C:/Users/tanwm/Desktop/P6H_Project/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/P6H_Project.dir/build.make src/CMakeFiles/P6H_Project.dir/buddy3/automate.c.s
-.PHONY : buddy3/automate.c.s
-
-buddy3/i2c/i2c.obj: buddy3/i2c/i2c.c.obj
-.PHONY : buddy3/i2c/i2c.obj
-
-# target to build an object file
-buddy3/i2c/i2c.c.obj:
-	cd C:/Users/tanwm/Desktop/P6H_Project/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/P6H_Project.dir/build.make src/CMakeFiles/P6H_Project.dir/buddy3/i2c/i2c.c.obj
-.PHONY : buddy3/i2c/i2c.c.obj
-
-buddy3/i2c/i2c.i: buddy3/i2c/i2c.c.i
-.PHONY : buddy3/i2c/i2c.i
-
-# target to preprocess a source file
-buddy3/i2c/i2c.c.i:
-	cd C:/Users/tanwm/Desktop/P6H_Project/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/P6H_Project.dir/build.make src/CMakeFiles/P6H_Project.dir/buddy3/i2c/i2c.c.i
-.PHONY : buddy3/i2c/i2c.c.i
-
-buddy3/i2c/i2c.s: buddy3/i2c/i2c.c.s
-.PHONY : buddy3/i2c/i2c.s
-
-# target to generate assembly for a file
-buddy3/i2c/i2c.c.s:
-	cd C:/Users/tanwm/Desktop/P6H_Project/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/P6H_Project.dir/build.make src/CMakeFiles/P6H_Project.dir/buddy3/i2c/i2c.c.s
-.PHONY : buddy3/i2c/i2c.c.s
-
 buddy3/signal_generator.obj: buddy3/signal_generator.c.obj
 .PHONY : buddy3/signal_generator.obj
 
@@ -4513,30 +4441,6 @@ buddy3/signal_generator.s: buddy3/signal_generator.c.s
 buddy3/signal_generator.c.s:
 	cd C:/Users/tanwm/Desktop/P6H_Project/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/P6H_Project.dir/build.make src/CMakeFiles/P6H_Project.dir/buddy3/signal_generator.c.s
 .PHONY : buddy3/signal_generator.c.s
-
-buddy3/uart/uart.obj: buddy3/uart/uart.c.obj
-.PHONY : buddy3/uart/uart.obj
-
-# target to build an object file
-buddy3/uart/uart.c.obj:
-	cd C:/Users/tanwm/Desktop/P6H_Project/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/P6H_Project.dir/build.make src/CMakeFiles/P6H_Project.dir/buddy3/uart/uart.c.obj
-.PHONY : buddy3/uart/uart.c.obj
-
-buddy3/uart/uart.i: buddy3/uart/uart.c.i
-.PHONY : buddy3/uart/uart.i
-
-# target to preprocess a source file
-buddy3/uart/uart.c.i:
-	cd C:/Users/tanwm/Desktop/P6H_Project/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/P6H_Project.dir/build.make src/CMakeFiles/P6H_Project.dir/buddy3/uart/uart.c.i
-.PHONY : buddy3/uart/uart.c.i
-
-buddy3/uart/uart.s: buddy3/uart/uart.c.s
-.PHONY : buddy3/uart/uart.s
-
-# target to generate assembly for a file
-buddy3/uart/uart.c.s:
-	cd C:/Users/tanwm/Desktop/P6H_Project/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/P6H_Project.dir/build.make src/CMakeFiles/P6H_Project.dir/buddy3/uart/uart.c.s
-.PHONY : buddy3/uart/uart.c.s
 
 main.obj: main.c.obj
 .PHONY : main.obj
@@ -5065,9 +4969,6 @@ help:
 	@echo "... C_/Program_Files/Raspberry_Pi/Pico_SDK_v1.5.1/pico-sdk/src/rp2_common/pico_stdio/stdio.obj"
 	@echo "... C_/Program_Files/Raspberry_Pi/Pico_SDK_v1.5.1/pico-sdk/src/rp2_common/pico_stdio/stdio.i"
 	@echo "... C_/Program_Files/Raspberry_Pi/Pico_SDK_v1.5.1/pico-sdk/src/rp2_common/pico_stdio/stdio.s"
-	@echo "... C_/Program_Files/Raspberry_Pi/Pico_SDK_v1.5.1/pico-sdk/src/rp2_common/pico_stdio_uart/stdio_uart.obj"
-	@echo "... C_/Program_Files/Raspberry_Pi/Pico_SDK_v1.5.1/pico-sdk/src/rp2_common/pico_stdio_uart/stdio_uart.i"
-	@echo "... C_/Program_Files/Raspberry_Pi/Pico_SDK_v1.5.1/pico-sdk/src/rp2_common/pico_stdio_uart/stdio_uart.s"
 	@echo "... C_/Program_Files/Raspberry_Pi/Pico_SDK_v1.5.1/pico-sdk/src/rp2_common/pico_stdio_usb/reset_interface.obj"
 	@echo "... C_/Program_Files/Raspberry_Pi/Pico_SDK_v1.5.1/pico-sdk/src/rp2_common/pico_stdio_usb/reset_interface.i"
 	@echo "... C_/Program_Files/Raspberry_Pi/Pico_SDK_v1.5.1/pico-sdk/src/rp2_common/pico_stdio_usb/reset_interface.s"
@@ -5110,18 +5011,9 @@ help:
 	@echo "... C_/Users/tanwm/Desktop/FreeRTOS-Kernel-main/timers.obj"
 	@echo "... C_/Users/tanwm/Desktop/FreeRTOS-Kernel-main/timers.i"
 	@echo "... C_/Users/tanwm/Desktop/FreeRTOS-Kernel-main/timers.s"
-	@echo "... buddy3/automate.obj"
-	@echo "... buddy3/automate.i"
-	@echo "... buddy3/automate.s"
-	@echo "... buddy3/i2c/i2c.obj"
-	@echo "... buddy3/i2c/i2c.i"
-	@echo "... buddy3/i2c/i2c.s"
 	@echo "... buddy3/signal_generator.obj"
 	@echo "... buddy3/signal_generator.i"
 	@echo "... buddy3/signal_generator.s"
-	@echo "... buddy3/uart/uart.obj"
-	@echo "... buddy3/uart/uart.i"
-	@echo "... buddy3/uart/uart.s"
 	@echo "... main.obj"
 	@echo "... main.i"
 	@echo "... main.s"
