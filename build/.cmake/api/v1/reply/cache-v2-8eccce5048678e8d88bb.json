@@ -195,7 +195,7 @@
 				}
 			],
 			"type" : "INTERNAL",
-			"value" : "c:/Users/Zola/Desktop/P6H_Project/build"
+			"value" : "c:/Users/tanwm/Desktop/P6H_Project/build"
 		},
 		{
 			"name" : "CMAKE_CACHE_MAJOR_VERSION",
@@ -539,7 +539,7 @@
 				}
 			],
 			"type" : "FILEPATH",
-			"value" : "CMAKE_DLLTOOL-NOTFOUND"
+			"value" : "C:/gcc/mingw64/bin/dlltool.exe"
 		},
 		{
 			"name" : "CMAKE_EDIT_COMMAND",
@@ -679,7 +679,7 @@
 				}
 			],
 			"type" : "STATIC",
-			"value" : "C:/Users/Zola/Desktop/P6H_Project/build/CMakeFiles/pkgRedirects"
+			"value" : "C:/Users/tanwm/Desktop/P6H_Project/build/CMakeFiles/pkgRedirects"
 		},
 		{
 			"name" : "CMAKE_GENERATOR",
@@ -739,7 +739,7 @@
 				}
 			],
 			"type" : "INTERNAL",
-			"value" : "C:/Users/Zola/Desktop/P6H_Project"
+			"value" : "C:/Users/tanwm/Desktop/P6H_Project"
 		},
 		{
 			"name" : "CMAKE_INSTALL_PREFIX",
@@ -1283,7 +1283,7 @@
 				}
 			],
 			"type" : "FILEPATH",
-			"value" : "DOXYGEN_EXECUTABLE-NOTFOUND"
+			"value" : "C:/gcc/mingw64/bin/doxygen.exe"
 		},
 		{
 			"name" : "FAMILY_MCUS",
@@ -1307,7 +1307,7 @@
 				}
 			],
 			"type" : "INTERNAL",
-			"value" : "[C:/Users/Zola/anaconda3/python.exe][cfound components: Interpreter ][v3.11.4()]"
+			"value" : "[C:/Users/tanwm/AppData/Local/Programs/Python/Python311/python.exe][cfound components: Interpreter ][v3.11.4()]"
 		},
 		{
 			"name" : "FREERTOS_KERNEL_PATH",
@@ -1319,7 +1319,7 @@
 				}
 			],
 			"type" : "PATH",
-			"value" : "C:/Users/Zola/Documents/Pico-v1.5.1/FreeRTOS-Kernel-main"
+			"value" : "C:/Users/tanwm/Desktop/FreeRTOS-Kernel-main"
 		},
 		{
 			"name" : "FreeRTOS-Kernel_BINARY_DIR",
@@ -1331,7 +1331,7 @@
 				}
 			],
 			"type" : "STATIC",
-			"value" : "C:/Users/Zola/Desktop/P6H_Project/build/FREERTOS_KERNEL"
+			"value" : "C:/Users/tanwm/Desktop/P6H_Project/build/FREERTOS_KERNEL"
 		},
 		{
 			"name" : "FreeRTOS-Kernel_IS_TOP_LEVEL",
@@ -1355,7 +1355,7 @@
 				}
 			],
 			"type" : "STATIC",
-			"value" : "C:/Users/Zola/Documents/Pico-v1.5.1/FreeRTOS-Kernel-main/portable/ThirdParty/GCC/RP2040"
+			"value" : "C:/Users/tanwm/Desktop/FreeRTOS-Kernel-main/portable/ThirdParty/GCC/RP2040"
 		},
 		{
 			"name" : "P6H_Project_BINARY_DIR",
@@ -1367,7 +1367,7 @@
 				}
 			],
 			"type" : "STATIC",
-			"value" : "C:/Users/Zola/Desktop/P6H_Project/build"
+			"value" : "C:/Users/tanwm/Desktop/P6H_Project/build"
 		},
 		{
 			"name" : "P6H_Project_IS_TOP_LEVEL",
@@ -1391,7 +1391,7 @@
 				}
 			],
 			"type" : "STATIC",
-			"value" : "C:/Users/Zola/Desktop/P6H_Project"
+			"value" : "C:/Users/tanwm/Desktop/P6H_Project"
 		},
 		{
 			"name" : "PICO_BOARD",
@@ -1547,7 +1547,7 @@
 				}
 			],
 			"type" : "INTERNAL",
-			"value" : " C:/Program Files/Raspberry Pi/Pico SDK v1.5.1/pico-sdk/src/rp2_common/cmsis C:/Program Files/Raspberry Pi/Pico SDK v1.5.1/pico-sdk/src/rp2040/hardware_regs C:/Program Files/Raspberry Pi/Pico SDK v1.5.1/pico-sdk/src/rp2_common/cmsis C:/Program Files/Raspberry Pi/Pico SDK v1.5.1/pico-sdk/src/rp2040/hardware_regs C:/Program Files/Raspberry Pi/Pico SDK v1.5.1/pico-sdk/src/rp2_common/cmsis C:/Program Files/Raspberry Pi/Pico SDK v1.5.1/pico-sdk/src/rp2040/hardware_regs C:/Program Files/Raspberry Pi/Pico SDK v1.5.1/pico-sdk/src/rp2_common/cmsis C:/Program Files/Raspberry Pi/Pico SDK v1.5.1/pico-sdk/src/rp2040/hardware_regs C:/Program Files/Raspberry Pi/Pico SDK v1.5.1/pico-sdk/src/rp2_common/cmsis C:/Program Files/Raspberry Pi/Pico SDK v1.5.1/pico-sdk/src/rp2040/hardware_regs C:/Program Files/Raspberry Pi/Pico SDK v1.5.1/pico-sdk/src/rp2_common/cmsis C:/Program Files/Raspberry Pi/Pico SDK v1.5.1/pico-sdk/src/rp2040/hardware_regs C:/Program Files/Raspberry Pi/Pico SDK v1.5.1/pico-sdk/src/rp2_common/cmsis C:/Program Files/Raspberry Pi/Pico SDK v1.5.1/pico-sdk/src/rp2040/hardware_regs C:/Program Files/Raspberry Pi/Pico SDK v1.5.1/pico-sdk/src/rp2_common/cmsis C:/Program Files/Raspberry Pi/Pico SDK v1.5.1/pico-sdk/src/rp2040/hardware_regs C:/Program Files/Raspberry Pi/Pico SDK v1.5.1/pico-sdk/src/rp2_common/cmsis C:/Program Files/Raspberry Pi/Pico SDK v1.5.1/pico-sdk/src/rp2040/hardware_regs C:/Program Files/Raspberry Pi/Pico SDK v1.5.1/pico-sdk/src/rp2_common/cmsis C:/Program Files/Raspberry Pi/Pico SDK v1.5.1/pico-sdk/src/rp2040/hardware_regs C:/Program Files/Raspberry Pi/Pico SDK v1.5.1/pico-sdk/src/rp2_common/cmsis C:/Program Files/Raspberry Pi/Pico SDK v1.5.1/pico-sdk/src/rp2040/hardware_regs"
+			"value" : " C:/Program Files/Raspberry Pi/Pico SDK v1.5.1/pico-sdk/src/rp2_common/cmsis C:/Program Files/Raspberry Pi/Pico SDK v1.5.1/pico-sdk/src/rp2040/hardware_regs C:/Program Files/Raspberry Pi/Pico SDK v1.5.1/pico-sdk/src/rp2_common/cmsis C:/Program Files/Raspberry Pi/Pico SDK v1.5.1/pico-sdk/src/rp2040/hardware_regs C:/Program Files/Raspberry Pi/Pico SDK v1.5.1/pico-sdk/src/rp2_common/cmsis C:/Program Files/Raspberry Pi/Pico SDK v1.5.1/pico-sdk/src/rp2040/hardware_regs"
 		},
 		{
 			"name" : "PICO_DOXYGEN_PATHS",
@@ -1775,7 +1775,7 @@
 				}
 			],
 			"type" : "INTERNAL",
-			"value" : "C:/Users/Zola/anaconda3/python.exe"
+			"value" : "C:/Users/tanwm/AppData/Local/Programs/Python/Python311/python.exe"
 		},
 		{
 			"name" : "_Python3_INTERPRETER_PROPERTIES",
@@ -1787,7 +1787,7 @@
 				}
 			],
 			"type" : "INTERNAL",
-			"value" : "Python;3;11;4;32;;;C:\\Users\\Zola\\anaconda3\\Lib;C:\\Users\\Zola\\anaconda3\\Lib;C:\\Users\\Zola\\anaconda3\\Lib\\site-packages;C:\\Users\\Zola\\anaconda3\\Lib\\site-packages"
+			"value" : "Python;3;11;4;32;;;C:\\Users\\tanwm\\AppData\\Local\\Programs\\Python\\Python311\\Lib;C:\\Users\\tanwm\\AppData\\Local\\Programs\\Python\\Python311\\Lib;C:\\Users\\tanwm\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\site-packages;C:\\Users\\tanwm\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\site-packages"
 		},
 		{
 			"name" : "_Python3_INTERPRETER_SIGNATURE",
@@ -1799,7 +1799,7 @@
 				}
 			],
 			"type" : "INTERNAL",
-			"value" : "09f34e071c013838befd74f199cfae39"
+			"value" : "a6c114330edfb0c2095a8b90b7445f82"
 		},
 		{
 			"name" : "_Python3_Interpreter_REASON_FAILURE",
@@ -1847,7 +1847,7 @@
 				}
 			],
 			"type" : "STATIC",
-			"value" : "C:/Users/Zola/Desktop/P6H_Project/build/pico-sdk"
+			"value" : "C:/Users/tanwm/Desktop/P6H_Project/build/pico-sdk"
 		},
 		{
 			"name" : "pico_sdk_IS_TOP_LEVEL",

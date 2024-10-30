@@ -83,7 +83,7 @@ rule CXX_EXECUTABLE_LINKER__P6H_Project_Debug
 # Rule for re-running cmake.
 
 rule RERUN_CMAKE
-  command = "C:\Program Files\Raspberry Pi\Pico SDK v1.5.1\cmake\bin\cmake.exe" --regenerate-during-build -SC:\Users\Zola\Desktop\P6H_Project -BC:\Users\Zola\Desktop\P6H_Project\build
+  command = "C:\Program Files\Raspberry Pi\Pico SDK v1.5.1\cmake\bin\cmake.exe" --regenerate-during-build -SC:\Users\tanwm\Desktop\P6H_Project -BC:\Users\tanwm\Desktop\P6H_Project\build
   description = Re-running CMake...
   generator = 1
 

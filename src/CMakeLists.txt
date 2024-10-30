@@ -1,7 +1,7 @@
 add_executable(${NAME}
     main.c
     buddy3/signal_generator.c
-    buddy3/test.c
+    buddy3/protocol_analyzer.c
     #buddy1/sd_card.c
     #buddy1/hw_config.c
 )

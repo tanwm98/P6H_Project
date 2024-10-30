@@ -168,7 +168,7 @@
 		},
 		{
 			"isExternal" : true,
-			"path" : "C:/Users/Zola/Documents/Pico-v1.5.1/FreeRTOS-Kernel-main/portable/ThirdParty/GCC/RP2040/FreeRTOS_Kernel_import.cmake"
+			"path" : "C:/Users/tanwm/Desktop/FreeRTOS-Kernel-main/portable/ThirdParty/GCC/RP2040/FreeRTOS_Kernel_import.cmake"
 		},
 		{
 			"isExternal" : true,
@@ -633,11 +633,11 @@
 		},
 		{
 			"isExternal" : true,
-			"path" : "C:/Users/Zola/Documents/Pico-v1.5.1/FreeRTOS-Kernel-main/portable/ThirdParty/GCC/RP2040/CMakeLists.txt"
+			"path" : "C:/Users/tanwm/Desktop/FreeRTOS-Kernel-main/portable/ThirdParty/GCC/RP2040/CMakeLists.txt"
 		},
 		{
 			"isExternal" : true,
-			"path" : "C:/Users/Zola/Documents/Pico-v1.5.1/FreeRTOS-Kernel-main/portable/ThirdParty/GCC/RP2040/pico_sdk_import.cmake"
+			"path" : "C:/Users/tanwm/Desktop/FreeRTOS-Kernel-main/portable/ThirdParty/GCC/RP2040/pico_sdk_import.cmake"
 		},
 		{
 			"isExternal" : true,
@@ -645,7 +645,7 @@
 		},
 		{
 			"isExternal" : true,
-			"path" : "C:/Users/Zola/Documents/Pico-v1.5.1/FreeRTOS-Kernel-main/portable/ThirdParty/GCC/RP2040/library.cmake"
+			"path" : "C:/Users/tanwm/Desktop/FreeRTOS-Kernel-main/portable/ThirdParty/GCC/RP2040/library.cmake"
 		},
 		{
 			"path" : "src/CMakeLists.txt"
@@ -674,8 +674,8 @@
 	"kind" : "cmakeFiles",
 	"paths" : 
 	{
-		"build" : "C:/Users/Zola/Desktop/P6H_Project/build",
-		"source" : "C:/Users/Zola/Desktop/P6H_Project"
+		"build" : "C:/Users/tanwm/Desktop/P6H_Project/build",
+		"source" : "C:/Users/tanwm/Desktop/P6H_Project"
 	},
 	"version" : 
 	{

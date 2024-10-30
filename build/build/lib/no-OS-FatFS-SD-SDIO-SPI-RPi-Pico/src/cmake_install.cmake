@@ -1,4 +1,4 @@
-# Install script for directory: C:/Users/Zola/Desktop/P6H_Project/build/lib/no-OS-FatFS-SD-SDIO-SPI-RPi-Pico/src
+# Install script for directory: C:/Users/tanwm/Desktop/P6H_Project/build/lib/no-OS-FatFS-SD-SDIO-SPI-RPi-Pico/src
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
