@@ -3,19 +3,28 @@
 #include "hardware/pwm.h"
 #include "hardware/gpio.h"
 #include "buddy3/signal_generator.h"
+#include "buddy3/protocol_analyzer.h"
 
 int main() {
     stdio_init_all();
     sleep_ms(2000);
     
-    printf("\nSignal Generator & UART Analyzer - Week 10\n");
+    printf("\nPico Pirate - Week 10\n");
+    
+    // Initialize both modules
     signal_generator_init();
+    protocol_analyzer_init(4,    // UART pin (GP4)
+                         5,      // I2C SCL
+                         6,      // I2C SDA
+                         10,     // SPI SCK
+                         11,     // SPI MOSI
+                         12);    // SPI MISO
     
     while (1) {
         printf("\nTest Menu:\n");
-        printf("1. Read stored sequence\n"); //simulate SD Card
+        printf("1. Read stored sequence\n");
         printf("2. Replay sequence\n");
-        printf("3. Analyze UART signal (GP4)\n");
+        printf("3. Analyze protocol signals\n");
         printf("4. Exit\n");
         printf("Choice: ");
         
@@ -38,17 +47,19 @@ int main() {
                     printf("No sequence loaded! Read sequence first.\n");
                 }
                 break;
+                
             case '3': {
-                printf("Analyzing UART signal on GP4...\n");
-                printf("Ensure test device is connected and transmitting\n");
-                uart_result_t result = analyze_uart_signal(1000);
-                display_uart_results(&result);
+                printf("Analyzing signals...\n");
+                protocol_result_t result = analyze_protocol(1000);
+                display_protocol_results(&result);
                 break;
             }
-            case '4':{
+            
+            case '4': {
                 printf("Exiting...\n");
                 return 0;
             }
+            
             default:
                 printf("Invalid choice\n");
                 break;

@@ -1018,14 +1018,14 @@
 				},
 				{
 					"build" : "FREERTOS_KERNEL",
-					"jsonFile" : "directory-FREERTOS_KERNEL-Debug-dfbe81d93028960842c6.json",
+					"jsonFile" : "directory-FREERTOS_KERNEL-Debug-56c7a1c488f7fb362b54.json",
 					"minimumCMakeVersion" : 
 					{
 						"string" : "3.13"
 					},
 					"parentIndex" : 0,
 					"projectIndex" : 2,
-					"source" : "C:/Users/Zola/Documents/Pico-v1.5.1/FreeRTOS-Kernel-main/portable/ThirdParty/GCC/RP2040"
+					"source" : "C:/Users/tanwm/Desktop/FreeRTOS-Kernel-main/portable/ThirdParty/GCC/RP2040"
 				},
 				{
 					"build" : "src",
@@ -1197,14 +1197,14 @@
 				{
 					"directoryIndex" : 82,
 					"id" : "P6H_Project::@145eef247bfb46b6828c",
-					"jsonFile" : "target-P6H_Project-Debug-319edaeab22ab1057f1c.json",
+					"jsonFile" : "target-P6H_Project-Debug-ea10f0ac85bc6c24e75f.json",
 					"name" : "P6H_Project",
 					"projectIndex" : 0
 				},
 				{
 					"directoryIndex" : 43,
 					"id" : "bs2_default::@bc554eaed616d198a22d",
-					"jsonFile" : "target-bs2_default-Debug-53863f6bcefb98a124ff.json",
+					"jsonFile" : "target-bs2_default-Debug-9a07777736792587b865.json",
 					"name" : "bs2_default",
 					"projectIndex" : 1
 				},
@@ -1249,8 +1249,8 @@
 	"kind" : "codemodel",
 	"paths" : 
 	{
-		"build" : "C:/Users/Zola/Desktop/P6H_Project/build",
-		"source" : "C:/Users/Zola/Desktop/P6H_Project"
+		"build" : "C:/Users/tanwm/Desktop/P6H_Project/build",
+		"source" : "C:/Users/tanwm/Desktop/P6H_Project"
 	},
 	"version" : 
 	{

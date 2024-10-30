@@ -9,6 +9,6 @@
 	"paths" : 
 	{
 		"build" : "FREERTOS_KERNEL",
-		"source" : "C:/Users/Zola/Documents/Pico-v1.5.1/FreeRTOS-Kernel-main/portable/ThirdParty/GCC/RP2040"
+		"source" : "C:/Users/tanwm/Desktop/FreeRTOS-Kernel-main/portable/ThirdParty/GCC/RP2040"
 	}
 }
