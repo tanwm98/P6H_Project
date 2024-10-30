@@ -17,4 +17,4 @@ pico_sdk_init()
 include($ENV{FREERTOS_KERNEL_PATH}/portable/ThirdParty/GCC/RP2040/FreeRTOS_Kernel_import.cmake) ## follow fauzi lab to get this
 
 add_subdirectory(src)
-add_subdirectory(build/lib/no-OS-FatFS-SD-SDIO-SPI-RPi-Pico/src)
+add_subdirectory(lib/no-OS-FatFS-SD-SDIO-SPI-RPi-Pico/src)
