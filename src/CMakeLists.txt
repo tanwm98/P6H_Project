@@ -4,7 +4,7 @@ add_executable(${NAME}
     buddy3/protocol_analyzer.c
     buddy1/sd_card.c
     buddy1/hw_config.c
-    buddy2/pwm_adc.c
+    buddy2/signal_analyzer.c
 )
 
 
@@ -28,7 +28,9 @@ target_link_libraries(${NAME}
     hardware_adc
     hardware_spi
     hardware_i2c
+    hardware_clocks
     hardware_gpio
+    hardware_dma
     FatFs_SPI
 )
 
