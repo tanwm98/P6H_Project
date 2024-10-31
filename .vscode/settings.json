@@ -3,7 +3,14 @@
         "string.h": "c",
         "freertos.h": "c",
         "signal_generator.h": "c",
-        "timer.h": "c"
+        "timer.h": "c",
+        "signal_analyzer.h": "c",
+        "stdlib.h": "c",
+        "sd_card.h": "c",
+        "hw_config.h": "c",
+        "my_debug.h": "c",
+        "stdbool.h": "c",
+        "rp2040.h": "c"
     },
     "C_Cpp.errorSquiggles": "enabled"
 }
