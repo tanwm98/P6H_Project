@@ -2,8 +2,7 @@
     "files.associations": {
         "string.h": "c",
         "freertos.h": "c",
-        "signal_generator.h": "c",
-        "timer.h": "c"
+        "signal_generator.h": "c"
     },
     "C_Cpp.errorSquiggles": "enabled"
 }
