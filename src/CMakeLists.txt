@@ -12,11 +12,8 @@ target_include_directories(${NAME} PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}
     ${CMAKE_CURRENT_LIST_DIR}/..
     ${CMAKE_CURRENT_LIST_DIR}/../include
-    ${CMAKE_CURRENT_LIST_DIR}/../lib/no-OS-FatFS-SD-SDIO-SPI-RPi-Pico/src/include
-    ${CMAKE_CURRENT_LIST_DIR}/../lib/no-OS-FatFS-SD-SDIO-SPI-RPi-Pico/ff15/source  # Add FatFS headers
-    ${CMAKE_CURRENT_LIST_DIR}/../lib/no-OS-FatFS-SD-SDIO-SPI-RPi-Pico/src    # Add SD card driver headers
 )
-add_compile_definitions(USE_PRINTF)
+
 target_compile_definitions(${NAME} PRIVATE
     NO_SYS=0
     LWIP_SOCKET=1
@@ -31,10 +28,8 @@ target_link_libraries(${NAME}
     hardware_adc
     hardware_spi
     hardware_i2c
-    hardware_clocks
     hardware_gpio
-    hardware_dma
-    no-OS-FatFS-SD-SDIO-SPI-RPi-Pico
+    FatFs_SPI
 )
 
 pico_enable_stdio_usb(${NAME} 1)
