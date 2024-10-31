@@ -12,25 +12,17 @@ CONDITIONS OF ANY KIND, either express or implied. See the License for the
 specific language governing permissions and limitations under the License.
 */
 
-#pragma once
+#ifndef _SD_SPI_H_
+#define _SD_SPI_H_
 
 #include <stdint.h>
-//
-#include "my_spi.h"
 #include "sd_card.h"
-
-#ifdef NDEBUG
-#pragma GCC diagnostic ignored "-Wunused-variable"
-#endif
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /* Transfer tx to SPI while receiving SPI to rx. 
 tx or rx can be NULL if not important. */
 void sd_spi_go_low_frequency(sd_card_t *this);
 void sd_spi_go_high_frequency(sd_card_t *this);
+void sd_spi_deselect_pulse(sd_card_t *sd_card_p);
 
 /* 
 After power up, the host starts the clock and sends the initializing sequence on the CMD line. 
@@ -74,12 +66,6 @@ static inline void sd_spi_deselect(sd_card_t *sd_card_p) {
     */
     sd_spi_write(sd_card_p, SPI_FILL_CHAR);
 }
-/* Some SD cards want to be deselected between every bus transaction */
-static inline void sd_spi_deselect_pulse(sd_card_t *sd_card_p) {
-    sd_spi_deselect(sd_card_p);
-    // tCSH Pulse duration, CS high 200 ns
-    sd_spi_select(sd_card_p);
-}
 
 static inline void sd_spi_lock(sd_card_t *sd_card_p) {
     spi_lock(sd_card_p->spi_if_p->spi);
@@ -97,20 +83,6 @@ static inline void sd_spi_release(sd_card_t *sd_card_p) {
     sd_spi_unlock(sd_card_p);
 }
 
-/* Transfer tx to SPI while receiving SPI to rx.
-tx or rx can be NULL if not important. */
-static inline void sd_spi_transfer_start(sd_card_t *sd_card_p, const uint8_t *tx, uint8_t *rx, size_t length) {
-    return spi_transfer_start(sd_card_p->spi_if_p->spi, tx, rx, length);
-}
-static inline bool sd_spi_transfer_wait_complete(sd_card_t *sd_card_p, uint32_t timeout_ms) {
-    return spi_transfer_wait_complete(sd_card_p->spi_if_p->spi, timeout_ms);
-}
-static inline bool sd_spi_transfer(sd_card_t *sd_card_p, const uint8_t *tx, uint8_t *rx, size_t length) {
-	return spi_transfer(sd_card_p->spi_if_p->spi, tx, rx, length);
-}
-
-#ifdef __cplusplus
-}
 #endif
 
 /* [] END OF FILE */

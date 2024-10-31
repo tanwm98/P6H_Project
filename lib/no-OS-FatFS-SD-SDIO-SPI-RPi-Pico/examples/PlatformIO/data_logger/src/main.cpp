@@ -146,7 +146,7 @@ bool process_logger() {
     //   the string has been completely written.
     ASSERT(0 < nw && nw < (int)sizeof buf);
     n += nw;
-    cout << buf << "\r";
+    cout << buf;
 
     UINT bw;
     fr = file.write(buf, n, &bw);
@@ -169,8 +169,6 @@ void setup() {
     while (!Serial1)
         ;  // Serial is via USB; wait for enumeration
     cout << "Hello, world!" << endl;
-
-    adc_init(); // Reading voltage on A0
 
     time_init();
     // You might want to ask the user for the time,
@@ -205,9 +203,8 @@ void setup() {
         .baud_rate = 12 * 1000 * 1000,  // Actual frequency: 10416666
         .DMA_IRQ_num = DMA_IRQ_1,
         .set_drive_strength = true,
-        .mosi_gpio_drive_strength = GPIO_DRIVE_STRENGTH_12MA,
-        .sck_gpio_drive_strength = GPIO_DRIVE_STRENGTH_12MA
-    };
+        .mosi_gpio_drive_strength = GPIO_DRIVE_STRENGTH_4MA,
+        .sck_gpio_drive_strength = GPIO_DRIVE_STRENGTH_2MA};
 
     // Hardware Configuration of SPI Interface object:
     static sd_spi_if_t spi_if = {
@@ -218,6 +215,9 @@ void setup() {
 
     // Hardware Configuration of the SD Card object:
     static sd_card_t sd_card = {
+        /* "pcName" is the FatFs "logical drive" identifier.
+        (See http://elm-chan.org/fsw/ff/doc/filename.html#vol) */
+        .pcName = "0:",
         .type = SD_IF_SPI,
         .spi_if_p = &spi_if,  // Pointer to the SPI interface driving this card
         // SD Card detect:
@@ -228,9 +228,6 @@ void setup() {
         .card_detect_pull_hi = true};
 
     FatFsNs::SdCard* SdCard_p(FatFsNs::FatFs::add_sd_card(&sd_card));
-
-    // The H/W config must be set up before this is called:
-    sd_init_driver(); 
 
     FRESULT fr = SdCard_p->mount();
     CHK_FRESULT("mount", fr);

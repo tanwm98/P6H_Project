@@ -13,30 +13,31 @@
 
 using namespace FatFsNs;
 
-/* Implement library message callbacks */
-void put_out_error_message(const char *s) {
-    Serial1.printf("%s\r", s);
-}
-void put_out_info_message(const char *s) {
-    Serial1.printf("%s\r", s);
-}
-/* This will not be called unless build_flags include "-D USE_DBG_PRINTF": */
-// void put_out_debug_message(const char *s) {
-//     Serial1.printf("%s\r", s);
-// }
 #define printf Serial1.printf
 #define puts Serial1.println
 
+/* Implement library message callbacks */
+void put_out_error_message(const char *s) {
+    Serial1.write(s);
+}
+void put_out_info_message(const char *s) {
+    Serial1.write(s);
+}
+/* This will not be called unless build_flags include "-D USE_DBG_PRINTF": */
+// void put_out_debug_message(const char *s) {
+//     Serial1.write(s);
+// }
+
 #define error(s)                  \
     {                             \
-        printf("ERROR: %s\r\n", s); \
+        printf("ERROR: %s\n", s); \
         for (;;) __breakpoint();  \
     }
 
 /* ********************************************************************** */
 
 // Whether or not to format the card(s) in setup():
-static const bool FORMAT = false;
+static const bool FORMAT = true;
 
 // Set PRE_ALLOCATE true to pre-allocate file clusters.
 static const bool PRE_ALLOCATE = true;
@@ -69,9 +70,9 @@ static const uint32_t FILE_SIZE = (1024 * 1024 * FILE_SIZE_MiB);
 static void chk_result(const char* s, FRESULT fr) {
     if (FR_OK != fr) {
         if (s && *s)
-            printf("%s: %s (%d)\r\n", s, FRESULT_str(fr), fr);
+            printf("%s: %s (%d)\n", s, FRESULT_str(fr), fr);
         else
-            printf("%s (%d)\r\n", FRESULT_str(fr), fr);
+            printf("%s (%d)\n", FRESULT_str(fr), fr);
         for (;;) __breakpoint();
     }
 }
@@ -83,7 +84,7 @@ void setup() {
     while (!Serial1)
         ;                     // Serial is via USB; wait for enumeration
     printf("\033[2J\033[H");  // Clear Screen
-    printf("\nUse a freshly formatted SD for best performance.\r\n");
+    printf("\nUse a freshly formatted SD for best performance.\n");
 
     /*
     This example assumes the following wiring for SD card 0:
@@ -143,15 +144,21 @@ void setup() {
     // Hardware Configuration of the SD Card "objects"
     static sd_card_t sd_cards[] = {
         {   // sd_cards[0]
-            .type = SD_IF_SPI,
-            .spi_if_p = &spi_if,  // Pointer to the SPI interface driving this card
-            .use_card_detect = true,
-            .card_detect_gpio = 9,
-            .card_detected_true = 0,  // What the GPIO read returns when a card is present.
-            .card_detect_use_pull = true,
-            .card_detect_pull_hi = true
+         /* "pcName" is the FatFs "logical drive" identifier.
+         (See http://elm-chan.org/fsw/ff/doc/filename.html#vol) */
+         .pcName = "0:",
+         .type = SD_IF_SPI,
+         .spi_if_p = &spi_if,  // Pointer to the SPI interface driving this card
+         .use_card_detect = true,
+         .card_detect_gpio = 9,
+         .card_detected_true = 0,  // What the GPIO read returns when a card is present.
+         .card_detect_use_pull = true,
+         .card_detect_pull_hi = true
         },
         {   // sd_cards[1]
+            /* "pcName" is the FatFs "logical drive" identifier.
+            (See http://elm-chan.org/fsw/ff/doc/filename.html#vol) */
+            .pcName = "1:",
             .type = SD_IF_SDIO,
             .sdio_if_p = &sdio_if,
             // SD Card detect:
@@ -167,12 +174,12 @@ void setup() {
     FatFs::add_sd_card(&sd_cards[1]);
 
     if (!FatFs::begin())
-        error("Driver initialization failed\r\n");
+        error("Driver initialization failed\n");
 
     if (FORMAT) {
         for (size_t i = 0; i < FatFs::SdCard_get_num(); ++i) {
             SdCard* SdCard_p = FatFs::SdCard_get_by_num(i);
-            printf("Formatting drive %s...\r\n", SdCard_p->get_name());
+            printf("Formatting drive %s...\n", SdCard_p->get_name());
             FRESULT fr = SdCard_p->format();
             chk_result("format", fr);
         }
@@ -198,7 +205,7 @@ static void bench(char const* logdrv) {
 
     SdCard* SdCard_p(FatFs::SdCard_get_by_name(logdrv));
     if (!SdCard_p) {
-        printf("Unknown logical drive name: %s\r\n", logdrv);
+        printf("Unknown logical drive name: %s\n", logdrv);
         for (;;) __breakpoint();
     }
     FRESULT fr = f_chdrive(logdrv);
@@ -206,28 +213,29 @@ static void bench(char const* logdrv) {
 
     switch (SdCard_p->fatfs()->fs_type) {
         case FS_EXFAT:
-            printf("Type is exFAT\r\n");
+            printf("Type is exFAT\n");
             break;
         case FS_FAT12:
-            printf("Type is FAT12\r\n");
+            printf("Type is FAT12\n");
             break;
         case FS_FAT16:
-            printf("Type is FAT16\r\n");
+            printf("Type is FAT16\n");
             break;
         case FS_FAT32:
-            printf("Type is FAT32\r\n");
+            printf("Type is FAT32\n");
             break;
     }
 
     printf("Card size: ");
     printf("%.2f", SdCard_p->get_num_sectors() * 512E-9);
-    printf(" GB (GB = 1E9 bytes)\r\n");
+    printf(" GB (GB = 1E9 bytes)\n");
 
     // typedef int (*printer_t)(const char* format, ...);
 
     SdCard_p->cidDmp(info_message_printf);
     SdCard_p->csdDmp(info_message_printf);
 
+    // fr = f_mount(&SdCard_p->fatfs, SdCard_p->pcName, 1);
     SdCard_p->mount();
     chk_result("f_mount", fr);
 
@@ -253,15 +261,15 @@ static void bench(char const* logdrv) {
         fr = file.expand(FILE_SIZE);
         chk_result("file.expand", fr);
     }
-    printf("FILE_SIZE_MB = %lu\r\n", FILE_SIZE_MiB);
-    printf("BUF_SIZE = %zu\r\n", BUF_SIZE);
-    printf("Starting write test, please wait.\n\r\n");
+    printf("FILE_SIZE_MB = %lu\n", FILE_SIZE_MiB);
+    printf("BUF_SIZE = %zu\n", BUF_SIZE);
+    printf("Starting write test, please wait.\n\n");
 
     // do write test
     uint32_t n = FILE_SIZE / BUF_SIZE;
-    printf("write speed and latency\r\n");
-    printf("speed,max,min,avg\r\n");
-    printf("KB/Sec,usec,usec,usec\r\n");
+    printf("write speed and latency\n");
+    printf("speed,max,min,avg\n");
+    printf("KB/Sec,usec,usec,usec\n");
     for (uint8_t nTest = 0; nTest < WRITE_COUNT; nTest++) {
         fr = file.rewind();
         chk_result("file.rewind", fr);
@@ -301,12 +309,12 @@ static void bench(char const* logdrv) {
         t = millis() - t;
         s = file.size();
         printf("%.1f,%lu,%lu", s / t, maxLatency, minLatency);
-        printf(",%lu\r\n", totalLatency / n);
+        printf(",%lu\n", totalLatency / n);
     }
-    printf("\nStarting read test, please wait.\r\n");
-    printf("\nread speed and latency\r\n");
-    printf("speed,max,min,avg\r\n");
-    printf("KB/Sec,usec,usec,usec\r\n");
+    printf("\nStarting read test, please wait.\n");
+    printf("\nread speed and latency\n");
+    printf("speed,max,min,avg\n");
+    printf("KB/Sec,usec,usec,usec\n");
 
     // do read test
     for (uint8_t nTest = 0; nTest < READ_COUNT; nTest++) {
@@ -345,9 +353,9 @@ static void bench(char const* logdrv) {
         s = file.size();
         t = millis() - t;
         printf("%.1f,%lu,%lu", s / t, maxLatency, minLatency);
-        printf(",%lu\r\n", totalLatency / n);
+        printf(",%lu\n", totalLatency / n);
     }
-    printf("\nDone\r\n");
+    printf("\nDone\n");
     fr = file.close();
     chk_result("file.close", fr);
     fr = SdCard_p->unmount();
@@ -356,8 +364,8 @@ static void bench(char const* logdrv) {
 
 void loop() {
     // put your main code here, to run repeatedly:
-    printf("\nTesting drive 0:\r\n");
+    printf("\nTesting drive 0:\n");
     bench("0:");
-    printf("\nTesting drive 1:\r\n");
+    printf("\nTesting drive 1:\n");
     bench("1:");
 }

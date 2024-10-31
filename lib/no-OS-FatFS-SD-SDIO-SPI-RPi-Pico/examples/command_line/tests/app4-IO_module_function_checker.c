@@ -38,15 +38,12 @@ CONDITIONS OF ANY KIND, either express or implied. See the License for the
 specific language governing permissions and limitations under the License.
 */
 
-#include <stdlib.h>     // malloc
+#include <my_debug.h>
 #include <string.h>
 #include "ff.h"         /* Declarations of sector size */
 #include "diskio.h"     /* Declarations of disk functions */
-//
-#include "hardware/gpio.h" // gpio_put
-//
-#include <my_debug.h>
 
+#include "hardware/gpio.h" // gpio_put
 
 static DWORD pn (       /* Pseudo random number generator */
     DWORD pns   /* !0:Initialize, 0:Read */
@@ -335,16 +332,10 @@ int test_diskio (
 int lliot(size_t pnum)
 {
     int rc;
-    // DWORD buff[FF_MAX_SS];  /* Working buffer (4 sector in size) */
-    size_t buff_sz = FF_MAX_SS * sizeof(DWORD);
-    DWORD *buff = malloc(buff_sz);
-    if (!buff) {
-        EMSG_PRINTF("malloc(%zu) failed!\n", buff_sz);
-        return 100;
-    }
+    DWORD buff[FF_MAX_SS];  /* Working buffer (4 sector in size) */
 
     /* Check function/compatibility of the physical drive #0 */
-    rc = test_diskio(pnum, 3, buff, buff_sz);
+    rc = test_diskio(pnum, 3, buff, sizeof buff);
 
     if (rc) {
         EMSG_PRINTF("Sorry the function/compatibility test failed. (rc=%d)\nFatFs will not work with this disk driver.\n", rc);
@@ -352,7 +343,6 @@ int lliot(size_t pnum)
         IMSG_PRINTF("Congratulations! The disk driver works well.\n");
     }
 
-    free(buff);
     return rc;
 }
 

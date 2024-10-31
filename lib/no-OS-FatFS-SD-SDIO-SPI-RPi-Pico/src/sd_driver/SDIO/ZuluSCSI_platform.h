@@ -36,10 +36,9 @@ extern const char *g_azplatform_name;
 void azplatform_log(const char *s);
 void azplatform_emergency_log_save();
 
-#if 0
 // Timing and delay functions.
 // Arduino platform already provides these
-// unsigned long millis(void);
+unsigned long millis(void);
 void delay(unsigned long ms);
 
 // Short delays, can be called from interrupt mode
@@ -47,7 +46,6 @@ static inline void delay_ns(unsigned long ns)
 {
     delayMicroseconds((ns + 999) / 1000);
 }
-#endif
 
 // Approximate fast delay
 static inline void delay_100ns()

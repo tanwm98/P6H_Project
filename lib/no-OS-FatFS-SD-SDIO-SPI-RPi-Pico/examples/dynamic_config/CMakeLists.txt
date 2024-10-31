@@ -40,7 +40,7 @@ pico_enable_stdio_usb(dynamic_config_example 1)
 # Add the standard library and FatFS/SPI to the build
 target_link_libraries(dynamic_config_example 
     pico_stdlib
-    no-OS-FatFS-SD-SDIO-SPI-RPi-Pico
+    FatFs_SPI
 )
 
 pico_add_extra_outputs(dynamic_config_example)

@@ -31,7 +31,7 @@ add_compile_definitions(USE_PRINTF)
 # Add the standard library and FatFS/SPI to the build
 target_link_libraries(simple_example 
     pico_stdlib
-    no-OS-FatFS-SD-SDIO-SPI-RPi-Pico
+    FatFs_SPI
 )
 
 pico_set_program_name(simple_example "simple_example")
