@@ -1,194 +1,217 @@
-// // signal_analyzer.c
-// #include "signal_analyzer.h"
-// #include "hardware/gpio.h"
-// #include "hardware/adc.h"
-// #include "hardware/dma.h"
-// #include "hardware/irq.h"
-// #include <stdio.h>
-// #include <stdlib.h>
+#include "signal_analyzer.h"
 
-// #define ADC_SAMPLE_RATE 50000
-// #define ADC_SAMPLES 5000
 
-// static void gpio_irq_handler(uint gpio, uint32_t events, void* user_data) {
-//     SignalAnalyzer* analyzer = (SignalAnalyzer*)user_data;
-//     uint32_t current_time = to_us_since_boot(get_absolute_time());
-    
-//     if (events & GPIO_IRQ_EDGE_RISE) {
-//         if (analyzer->metrics.last_rise_time != 0) {
-//             uint32_t period = current_time - analyzer->metrics.last_rise_time;
-//             analyzer->metrics.frequency = 1000000.0f / period;
-//         }
-//         analyzer->metrics.last_rise_time = current_time;
-//         analyzer->edge_timestamps[analyzer->edge_count++ & 0xFF] = current_time;
-//     }
-    
-//     if (events & GPIO_IRQ_EDGE_FALL) {
-//         analyzer->metrics.last_fall_time = current_time;
-//         if (analyzer->metrics.last_rise_time != 0) {
-//             uint32_t high_time = current_time - analyzer->metrics.last_rise_time;
-//             uint32_t period = current_time - analyzer->edge_timestamps[(analyzer->edge_count - 2) & 0xFF];
-//             analyzer->metrics.duty_cycle = (float)high_time * 100.0f / period;
-//         }
-//     }
-    
-//     analyzer->metrics.signal_present = true;
-    
-//     // Notify callback if registered
-//     if (analyzer->on_update) {
-//         analyzer->on_update(&analyzer->metrics);
-//     }
-// }
+// Global variables
+static uint16_t capture_buf[CAPTURE_DEPTH];
+static uint dma_chan;
+static volatile DigitalSignal digital_signal = {0};
+static volatile PWMMetrics pwm_metrics = {0};
+static volatile float analog_frequency = 0.0f;
 
-// static void adc_dma_handler(void* user_data) {
-//     SignalAnalyzer* analyzer = (SignalAnalyzer*)user_data;
-    
-//     if (dma_channel_get_irq0_status(analyzer->dma_channel)) {
-//         dma_channel_acknowledge_irq0(analyzer->dma_channel);
-//         analyzer->adc_complete = true;
-        
-//         // Process ADC data
-//         uint32_t sum = 0;
-//         uint16_t max_val = 0;
-//         uint16_t min_val = 4095;
-//         uint32_t crossings = 0;
-        
-//         for (int i = 0; i < ADC_SAMPLES; i++) {
-//             sum += analyzer->adc_buf[i];
-//             if (analyzer->adc_buf[i] > max_val) max_val = analyzer->adc_buf[i];
-//             if (analyzer->adc_buf[i] < min_val) min_val = analyzer->adc_buf[i];
-//         }
-        
-//         float avg = (float)sum / ADC_SAMPLES;
-//         bool above = analyzer->adc_buf[0] > avg;
-        
-//         for (int i = 1; i < ADC_SAMPLES; i++) {
-//             bool current_above = analyzer->adc_buf[i] > avg;
-//             if (above != current_above) {
-//                 crossings++;
-//                 above = current_above;
-//             }
-//         }
-        
-//         analyzer->metrics.frequency = (float)crossings * ADC_SAMPLE_RATE / (2 * ADC_SAMPLES);
-//         analyzer->metrics.signal_present = true;
-        
-//         // Notify callback if registered
-//         if (analyzer->on_update) {
-//             analyzer->on_update(&analyzer->metrics);
-//         }
-        
-//         // Restart DMA transfer
-//         dma_channel_set_write_addr(analyzer->dma_channel, analyzer->adc_buf, true);
-//     }
-// }
+// Forward declarations of internal functions
+static void gpio_callback(uint gpio, uint32_t events);
+static float analyze_capture(void);
+static void dma_handler(void);
+static void setup_adc_capture(void);
 
-// SignalAnalyzer* signal_analyzer_init_digital(uint gpio_pin, void (*callback)(const SignalMetrics*)) {
-//     SignalAnalyzer* analyzer = calloc(1, sizeof(SignalAnalyzer));
-//     if (!analyzer) return NULL;
-    
-//     analyzer->gpio_pin = gpio_pin;
-//     analyzer->on_update = callback;
-    
-//     gpio_init(gpio_pin);
-//     gpio_set_dir(gpio_pin, GPIO_IN);
-    
-//     return analyzer;
-// }
-
-// SignalAnalyzer* signal_analyzer_init_analog(uint gpio_pin, uint adc_channel, void (*callback)(const SignalMetrics*)) {
-//     SignalAnalyzer* analyzer = calloc(1, sizeof(SignalAnalyzer));
-//     if (!analyzer) return NULL;
-    
-//     analyzer->gpio_pin = gpio_pin;
-//     analyzer->adc_channel = adc_channel;
-//     analyzer->on_update = callback;
-    
-//     // Allocate ADC buffer
-//     analyzer->adc_buf = calloc(ADC_SAMPLES, sizeof(uint16_t));
-//     if (!analyzer->adc_buf) {
-//         free(analyzer);
-//         return NULL;
-//     }
-    
-//     // Initialize ADC
-//     adc_init();
-//     adc_gpio_init(gpio_pin);
-//     adc_select_input(adc_channel);
-    
-//     // Get a free DMA channel
-//     analyzer->dma_channel = dma_claim_unused_channel(true);
-    
-//     return analyzer;
-// }
-
-// void signal_analyzer_start(SignalAnalyzer* analyzer) {
-//     if (!analyzer) return;
-    
-//     // For digital signals
-//     if (!analyzer->adc_buf) {
-//         gpio_set_irq_enabled_with_callback(analyzer->gpio_pin,
-//             GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL,
-//             true,
-//             (gpio_irq_callback_t)gpio_irq_handler);
-//     }
-//     // For analog signals
-//     else {
-//         // Configure DMA
-//         dma_channel_config cfg = dma_channel_get_default_config(analyzer->dma_channel);
-//         channel_config_set_transfer_data_size(&cfg, DMA_SIZE_16);
-//         channel_config_set_read_increment(&cfg, false);
-//         channel_config_set_write_increment(&cfg, true);
-//         channel_config_set_dreq(&cfg, DREQ_ADC);
+// GPIO interrupt handler
+static void gpio_callback(uint gpio, uint32_t events) {
+    uint32_t now = time_us_32();
+    if(gpio == DIGITAL_PIN) {
+        if(events & GPIO_IRQ_EDGE_RISE) {
+            digital_signal.last_rise_time = now;
+            digital_signal.current_state = true;
+            printf("Digital Signal: HIGH at %lu us\n", now);
         
-//         dma_channel_configure(
-//             analyzer->dma_channel,
-//             &cfg,
-//             analyzer->adc_buf,
-//             &adc_hw->fifo,
-//             ADC_SAMPLES,
-//             true
-//         );
-        
-//         // Enable DMA interrupt
-//         dma_channel_set_irq0_enabled(analyzer->dma_channel, true);
-//         irq_set_exclusive_handler(DMA_IRQ_0, (irq_handler_t)adc_dma_handler);
-//         irq_set_enabled(DMA_IRQ_0, true);
-        
-//         // Start ADC
-//         adc_run(true);
-//     }
-// }
+            if(digital_signal.last_fall_time != 0) {
+                uint32_t low_width = now - digital_signal.last_fall_time;
+                printf("LOW pulse width: %lu us\n", low_width);
+            }
+        }
+        else if(events & GPIO_IRQ_EDGE_FALL) {
+            digital_signal.last_fall_time = now;
+            digital_signal.current_state = false;
 
-// void signal_analyzer_stop(SignalAnalyzer* analyzer) {
-//     if (!analyzer) return;
-    
-//     if (!analyzer->adc_buf) {
-//         gpio_set_irq_enabled(analyzer->gpio_pin, GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, false);
-//     } else {
-//         adc_run(false);
-//         dma_channel_abort(analyzer->dma_channel);
-//     }
-// }
+            if(digital_signal.last_rise_time != 0) {
+                digital_signal.pulse_width = now - digital_signal.last_rise_time;
+                printf("Digital Signal: LOW at %lu us\n", now);
+                printf("HIGH pulse width: %lu us\n", digital_signal.pulse_width);
+            }
+        }
+    }
+    else if(gpio == PWM_PIN) {
+        if(events & GPIO_IRQ_EDGE_RISE) {
+            if(pwm_metrics.last_rise != 0) {
+                pwm_metrics.period = now - pwm_metrics.last_rise;
+                pwm_metrics.frequency = 1000000.0f / pwm_metrics.period;
+            }
+            pwm_metrics.last_rise = now;
+        } else if(events & GPIO_IRQ_EDGE_FALL) {
+            if(pwm_metrics.last_rise != 0) {
+                uint32_t high_time = now - pwm_metrics.last_rise;
+                if(pwm_metrics.period > 0) {
+                    pwm_metrics.duty_cycle = (float)high_time * 100.0f / pwm_metrics.period;
+                }
+            }
+            pwm_metrics.last_fall = now;
+            printf("PWM - Frequency: %.2f Hz, Duty Cycle: %.1f%%\n", 
+                   pwm_metrics.frequency, pwm_metrics.duty_cycle);
+        }
+    }
+}
 
-// void signal_analyzer_get_metrics(SignalAnalyzer* analyzer, SignalMetrics* metrics) {
-//     if (!analyzer || !metrics) return;
-    
-//     // Critical section to ensure atomic copy
-//     uint32_t save = save_and_disable_interrupts();
-//     *metrics = analyzer->metrics;
-//     restore_interrupts(save);
-// }
+static float analyze_capture(void) {
+    uint16_t max_val = 0;
+    uint16_t min_val = 4096;
+    for(int i = 0; i < CAPTURE_DEPTH; i++) {
+        if(capture_buf[i] > max_val) max_val = capture_buf[i];
+        if(capture_buf[i] < min_val && capture_buf[i] != 0) min_val = capture_buf[i];
+    }
+    uint16_t amplitude = max_val - min_val;
+    float frequency = 0.0f;
 
-// void signal_analyzer_deinit(SignalAnalyzer* analyzer) {
-//     if (!analyzer) return;
+    if(amplitude > 500) {
+        uint16_t threshold = (max_val + min_val) / 2;
+        uint16_t hysteresis = amplitude / 10;
+        uint16_t upper_threshold = threshold + hysteresis;
+        uint16_t lower_threshold = threshold - hysteresis;
+        uint32_t first_crossing = 0;
+        uint32_t last_crossing = 0;
+        int crossing_count = 0;
+        bool above = capture_buf[0] > threshold;
+
+        for(int i = 1; i < CAPTURE_DEPTH; i++) {
+            if(capture_buf[i] != 0) {
+                if(above && capture_buf[i] < lower_threshold) {
+                    if(first_crossing == 0) first_crossing = i;
+                    last_crossing = i;
+                    crossing_count++;
+                    above = false;
+                }
+                else if(!above && capture_buf[i] > upper_threshold) {
+                    if(first_crossing == 0) first_crossing = i;
+                    last_crossing = i;
+                    crossing_count++;
+                    above = true;
+                }
+            }
+        }
+
+        if(crossing_count >= 4) {
+            float sample_period = 1.0f / 10000.0f;
+            float measurement_time = (last_crossing - first_crossing) * sample_period;
+            float cycles = (float)(crossing_count) / 2.0f;
+            frequency = cycles / measurement_time;
+            if(frequency > 1.0f && frequency < 5000.0f) {
+                printf("Analog Analysis:\n");
+                printf("  Frequency: %.1f Hz\n", frequency);
+                analog_frequency = frequency;
+            }
+        }
+    }
+    return frequency;
+}
+
+static void dma_handler(void) {
+    dma_hw->ints0 = 1u << dma_chan;
+    adc_run(false);
+    analyze_capture();
+    adc_fifo_drain();
+
+    dma_channel_config cfg = dma_channel_get_default_config(dma_chan);
+    channel_config_set_transfer_data_size(&cfg, DMA_SIZE_16);
+    channel_config_set_read_increment(&cfg, false);
+    channel_config_set_write_increment(&cfg, true);
+    channel_config_set_dreq(&cfg, DREQ_ADC);
     
-//     signal_analyzer_stop(analyzer);
+    dma_channel_configure(
+        dma_chan,
+        &cfg,
+        capture_buf,
+        &adc_hw->fifo,
+        CAPTURE_DEPTH,
+        true
+    );
+    adc_run(true);
+}
+
+static void setup_adc_capture(void) {
+    printf("Initializing ADC and DMA...\n");
+    adc_gpio_init(26);
+    adc_init();
+    adc_select_input(0);
     
-//     if (analyzer->adc_buf) {
-//         free(analyzer->adc_buf);
-//         dma_channel_unclaim(analyzer->dma_channel);
-//     }
+    adc_fifo_setup(
+        true,    // Write each conversion to FIFO
+        true,    // Enable DMA requests
+        1,       // DREQ when at least 1 sample present
+        false,   // Disable error bit
+        false    // Don't shift samples
+    );
     
-//     free(analyzer);
-// }
+    adc_set_clkdiv(4800);
+    adc_fifo_drain();
+    
+    dma_chan = dma_claim_unused_channel(true);
+    printf("Using DMA channel %d\n", dma_chan);
+    dma_channel_set_irq0_enabled(dma_chan, true);
+    irq_set_exclusive_handler(DMA_IRQ_0, dma_handler);
+    irq_set_enabled(DMA_IRQ_0, true);
+    
+    dma_channel_config cfg = dma_channel_get_default_config(dma_chan);
+    channel_config_set_transfer_data_size(&cfg, DMA_SIZE_16);
+    channel_config_set_read_increment(&cfg, false);
+    channel_config_set_write_increment(&cfg, true);
+    channel_config_set_dreq(&cfg, DREQ_ADC);
+    
+    printf("Starting first DMA transfer...\n");
+    dma_channel_configure(
+        dma_chan,
+        &cfg,
+        capture_buf,
+        &adc_hw->fifo,
+        CAPTURE_DEPTH,
+        true
+    );
+    adc_run(true);
+    printf("ADC and DMA initialization complete\n");
+}
+
+// Public functions
+void signal_analyzer_init(void) {
+    // Initialize GPIOs for digital and PWM inputs
+    gpio_init(DIGITAL_PIN);
+    gpio_init(PWM_PIN);
+    gpio_set_dir(DIGITAL_PIN, GPIO_IN);
+    gpio_set_dir(PWM_PIN, GPIO_IN);
+    
+    // Setup GPIO interrupts
+    gpio_set_irq_enabled_with_callback(DIGITAL_PIN, 
+        GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, true, &gpio_callback);
+    gpio_set_irq_enabled_with_callback(PWM_PIN, 
+        GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, true, &gpio_callback);
+    
+    // Initialize ADC and DMA
+    setup_adc_capture();
+    
+    printf("Signal Analyzer Ready\n");
+    printf("- Digital (GP2): HIGH/LOW states\n");
+    printf("- PWM (GP7): Frequency and Duty Cycle\n");
+    printf("- Analog (GP26): Frequency measurement enabled\n");
+}
+
+float get_analog_frequency(void) {
+    return analog_frequency;
+}
+
+DigitalSignal get_digital_signal_state(void) {
+    DigitalSignal signal;
+    signal = digital_signal;
+    return signal;
+}
+
+PWMMetrics get_pwm_metrics(void) {
+    PWMMetrics metrics;
+    metrics = pwm_metrics;
+    return metrics;
+}

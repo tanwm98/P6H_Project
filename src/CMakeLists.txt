@@ -30,7 +30,6 @@ target_link_libraries(${NAME}
     hardware_i2c
     hardware_clocks
     hardware_gpio
-    hardware_sync
     hardware_dma
     FatFs_SPI
 )
