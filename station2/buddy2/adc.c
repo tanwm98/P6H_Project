@@ -2,75 +2,73 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-// Global pointer to current config for use in callbacks
-static ADC_Config* current_config = NULL;
+// Private ADC configuration structure
+typedef struct {
+    uint16_t* capture_buf;
+    uint capture_depth;
+    uint button_pin;
+    uint analog_pin;
+    bool capturing;
+    bool transfer_complete;
+    float last_frequency;
+    int dma_chan;
+    bool continuous_mode;
+} ADC_Config;
+
+// Private global state
+static ADC_Config adc_config = {
+    .capture_buf = NULL,
+    .capture_depth = DEFAULT_CAPTURE_DEPTH,
+    .button_pin = DEFAULT_BUTTON_PIN,
+    .analog_pin = DEFAULT_ANALOG_PIN,
+    .capturing = false,
+    .transfer_complete = false,
+    .last_frequency = 0.0f,
+    .dma_chan = -1,
+    .continuous_mode = false
+};
 
 static void dma_handler(void) {
-    if (!current_config || current_config->dma_chan < 0) return;
+    if (adc_config.dma_chan < 0) return;
     
-    dma_hw->ints0 = 1u << current_config->dma_chan;
+    dma_hw->ints0 = 1u << adc_config.dma_chan;
     
-    // In continuous mode, immediately restart capture after analysis
-    if (current_config->continuous_mode) {
-        current_config->transfer_complete = true;
+    if (adc_config.continuous_mode) {
+        adc_config.transfer_complete = true;
         
-        // Reconfigure DMA for next capture
-        dma_channel_config cfg = dma_channel_get_default_config(current_config->dma_chan);
+        dma_channel_config cfg = dma_channel_get_default_config(adc_config.dma_chan);
         channel_config_set_transfer_data_size(&cfg, DMA_SIZE_16);
         channel_config_set_read_increment(&cfg, false);
         channel_config_set_write_increment(&cfg, true);
         channel_config_set_dreq(&cfg, DREQ_ADC);
         
         dma_channel_configure(
-            current_config->dma_chan,
+            adc_config.dma_chan,
             &cfg,
-            current_config->capture_buf,
+            adc_config.capture_buf,
             &adc_hw->fifo,
-            current_config->capture_depth,
+            adc_config.capture_depth,
             true
         );
     } else {
         adc_run(false);
-        current_config->capturing = false;
-        current_config->transfer_complete = true;
-    }
-    
-    printf("DMA Transfer Complete\n");
+        adc_config.capturing = false;
+        adc_config.transfer_complete = true;
+    }    
 }
 
-void adc_init_config(ADC_Config* config) {
-    config->capture_depth = DEFAULT_CAPTURE_DEPTH;
-    config->button_pin = DEFAULT_BUTTON_PIN;
-    config->analog_pin = DEFAULT_ANALOG_PIN;
-    config->capturing = false;
-    config->transfer_complete = false;
-    config->last_frequency = 0.0f;
-    config->dma_chan = -1;
-    config->continuous_mode = false;  // Initialize continuous mode as false
+void adc_analyzer_init(void) {
+    printf("Initializing ADC and DMA...\n");
     
     // Allocate capture buffer
-    config->capture_buf = (uint16_t*)malloc(config->capture_depth * sizeof(uint16_t));
-    if (!config->capture_buf) {
+    adc_config.capture_buf = (uint16_t*)malloc(adc_config.capture_depth * sizeof(uint16_t));
+    if (!adc_config.capture_buf) {
         printf("Error: Failed to allocate capture buffer\n");
         return;
     }
-}
-
-bool adc_init_hardware(ADC_Config* config) {
-    if (!config || !config->capture_buf) return false;
-    
-    current_config = config;  // Set global pointer for callbacks
-    
-    printf("Initializing ADC and DMA...\n");
-    
-    // Initialize button GPIO
-    gpio_init(config->button_pin);
-    gpio_set_dir(config->button_pin, GPIO_IN);
-    gpio_pull_up(config->button_pin);
-    gpio_set_irq_enabled_with_callback(config->button_pin, GPIO_IRQ_EDGE_FALL, true, &adc_button_handler);
     
     // Initialize ADC
-    adc_gpio_init(config->analog_pin);
+    adc_gpio_init(adc_config.analog_pin);
     adc_init();
     adc_select_input(0);
     
@@ -86,41 +84,42 @@ bool adc_init_hardware(ADC_Config* config) {
     adc_fifo_drain();
     
     // Claim DMA channel
-    config->dma_chan = dma_claim_unused_channel(true);
-    if (config->dma_chan < 0) {
+    adc_config.dma_chan = dma_claim_unused_channel(true);
+    if (adc_config.dma_chan < 0) {
         printf("Error: Could not claim a DMA channel\n");
-        return false;
+        return;
     }
     
     // Configure DMA interrupts
-    dma_channel_set_irq0_enabled(config->dma_chan, true);
+    dma_channel_set_irq0_enabled(adc_config.dma_chan, true);
     irq_set_exclusive_handler(DMA_IRQ_0, dma_handler);
     irq_set_enabled(DMA_IRQ_0, true);
     
     printf("ADC and DMA initialization complete\n");
-    return true;
+    printf("ADC Analyzer Ready\n");
+    printf("- ADC Input: GP%d\n", adc_config.analog_pin);
+    printf("- Control Button: GP%d\n", adc_config.button_pin);
 }
 
-void adc_start_capture(ADC_Config* config) {
-    if (!config->capturing) {
+void adc_start_capture(void) {
+    if (!adc_config.capturing) {
         printf("\nStarting continuous capture...\n");
-        config->capturing = true;
-        config->transfer_complete = false;
-        config->continuous_mode = true;  // Enable continuous mode
+        adc_config.capturing = true;
+        adc_config.transfer_complete = false;
+        adc_config.continuous_mode = true;
         
-        // Configure DMA transfer
-        dma_channel_config cfg = dma_channel_get_default_config(config->dma_chan);
+        dma_channel_config cfg = dma_channel_get_default_config(adc_config.dma_chan);
         channel_config_set_transfer_data_size(&cfg, DMA_SIZE_16);
         channel_config_set_read_increment(&cfg, false);
         channel_config_set_write_increment(&cfg, true);
         channel_config_set_dreq(&cfg, DREQ_ADC);
         
         dma_channel_configure(
-            config->dma_chan,
+            adc_config.dma_chan,
             &cfg,
-            config->capture_buf,
+            adc_config.capture_buf,
             &adc_hw->fifo,
-            config->capture_depth,
+            adc_config.capture_depth,
             true
         );
         
@@ -128,49 +127,45 @@ void adc_start_capture(ADC_Config* config) {
     }
 }
 
-void adc_stop_capture(ADC_Config* config) {
-    if (config->capturing) {
+void adc_stop_capture(void) {
+    if (adc_config.capturing) {
         printf("Stopping capture...\n");
-        config->continuous_mode = false;  // Disable continuous mode
-        config->capturing = false;
+        adc_config.continuous_mode = false;
+        adc_config.capturing = false;
         adc_run(false);
-        dma_channel_abort(config->dma_chan);
+        dma_channel_abort(adc_config.dma_chan);
         adc_fifo_drain();
-        config->transfer_complete = true;
+        adc_config.transfer_complete = true;
     }
 }
 
-void adc_button_handler(uint gpio, uint32_t events) {
-    static uint32_t last_time = 0;
-    uint32_t current_time = time_us_32();
-    
-    // Debounce - ignore events less than 200ms apart
-    if (current_time - last_time < 200000) {
-        return;
-    }
-    last_time = current_time;
-    
-    if (current_config && gpio == current_config->button_pin && (events & GPIO_IRQ_EDGE_FALL)) {
-        if (!current_config->capturing) {
-            adc_start_capture(current_config);
-        } else {
-            adc_stop_capture(current_config);
-        }
-    }
+bool is_adc_capturing(void) {
+    return adc_config.capturing;
 }
 
-float adc_analyze_capture(ADC_Config* config) {
+float get_last_frequency(void) {
+    return adc_config.last_frequency;
+}
+
+bool is_transfer_complete(void) {
+    return adc_config.transfer_complete;
+}
+
+void clear_transfer_complete(void) {
+    adc_config.transfer_complete = false;
+}
+
+float analyze_current_capture(void) {
     uint16_t max_val = 0;
     uint16_t min_val = 4096;
     
-    for(int i = 0; i < config->capture_depth; i++) {
-        if(config->capture_buf[i] > max_val) max_val = config->capture_buf[i];
-        if(config->capture_buf[i] < min_val && config->capture_buf[i] != 0) min_val = config->capture_buf[i];
+    for(int i = 0; i < adc_config.capture_depth; i++) {
+        if(adc_config.capture_buf[i] > max_val) max_val = adc_config.capture_buf[i];
+        if(adc_config.capture_buf[i] < min_val && adc_config.capture_buf[i] != 0) min_val = adc_config.capture_buf[i];
     }
     
     uint16_t amplitude = max_val - min_val;
     float frequency = 0.0f;
-
     
     if(amplitude > 500) {
         uint16_t threshold = (max_val + min_val) / 2;
@@ -180,17 +175,17 @@ float adc_analyze_capture(ADC_Config* config) {
         uint32_t first_crossing = 0;
         uint32_t last_crossing = 0;
         int crossing_count = 0;
-        bool above = config->capture_buf[0] > threshold;
+        bool above = adc_config.capture_buf[0] > threshold;
         
-        for(int i = 1; i < config->capture_depth; i++) {
-            if(config->capture_buf[i] != 0) {
-                if(above && config->capture_buf[i] < lower_threshold) {
+        for(int i = 1; i < adc_config.capture_depth; i++) {
+            if(adc_config.capture_buf[i] != 0) {
+                if(above && adc_config.capture_buf[i] < lower_threshold) {
                     if(first_crossing == 0) first_crossing = i;
                     last_crossing = i;
                     crossing_count++;
                     above = false;
                 }
-                else if(!above && config->capture_buf[i] > upper_threshold) {
+                else if(!above && adc_config.capture_buf[i] > upper_threshold) {
                     if(first_crossing == 0) first_crossing = i;
                     last_crossing = i;
                     crossing_count++;
@@ -206,8 +201,7 @@ float adc_analyze_capture(ADC_Config* config) {
             frequency = cycles / measurement_time;
             
             if(frequency > 1.0f && frequency < 5000.0f) {
-                printf("  Frequency: %.1f Hz\n", frequency);
-                config->last_frequency = frequency;
+                adc_config.last_frequency = frequency;
             } else {
                 printf("  Frequency out of range (1-5000 Hz)\n");
             }
@@ -218,7 +212,7 @@ float adc_analyze_capture(ADC_Config* config) {
         printf("  Signal amplitude too low for analysis\n");
     }
     
-    if (config->continuous_mode) {
+    if (adc_config.continuous_mode) {
         printf("\nContinuing capture...\n");
     } else {
         printf("\nPress again to capture\n");
@@ -226,14 +220,12 @@ float adc_analyze_capture(ADC_Config* config) {
     return frequency;
 }
 
-void adc_cleanup(ADC_Config* config) {
-    if (config) {
-        if (config->dma_chan >= 0) {
-            dma_channel_unclaim(config->dma_chan);
-        }
-        if (config->capture_buf) {
-            free(config->capture_buf);
-        }
-        current_config = NULL;
+void adc_cleanup(void) {
+    if (adc_config.dma_chan >= 0) {
+        dma_channel_unclaim(adc_config.dma_chan);
+    }
+    if (adc_config.capture_buf) {
+        free(adc_config.capture_buf);
+        adc_config.capture_buf = NULL;
     }
 }

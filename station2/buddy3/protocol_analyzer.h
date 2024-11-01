@@ -1,3 +1,4 @@
+// protocol_analyzer.h
 #ifndef PROTOCOL_ANALYZER_H
 #define PROTOCOL_ANALYZER_H
 
@@ -7,15 +8,18 @@
 #include "hardware/timer.h"
 #include <math.h>
 
-// Pin Definitions
 #define UART_RX_PIN 4 
 #define I2C_SCL_PIN 8     
 #define I2C_SDA_PIN 9 
 #define SPI_SCK_PIN 10  
 #define SPI_MOSI_PIN 11  
 #define SPI_MISO_PIN 12   
+#define PROTOCOL_BUTTON_PIN 22
 
-// Protocol types
+#define MAX_EDGES 256
+#define MIN_EDGES_FOR_VALID 20
+
+// Protocol types (kept from original)
 typedef enum {
     PROTOCOL_UNKNOWN = 0,
     PROTOCOL_UART,
@@ -23,64 +27,37 @@ typedef enum {
     PROTOCOL_SPI
 } protocol_type_t;
 
-// Generic protocol parameters
-typedef struct {
-    protocol_type_t type;
-    bool is_valid;
-    float error_margin;
-    uint32_t sample_count;
-} protocol_base_t;
-
-// UART specific parameters
-typedef struct {
-    protocol_base_t base;
-    uint32_t baud_rate;
-    uint32_t bit_time_us;
-    bool inverted;
-} uart_params_t;
-
-// I2C specific parameters (for future implementation)
-typedef struct {
-    protocol_base_t base;
-    uint32_t clock_freq;
-    uint8_t address;
-    bool clock_stretch;
-} i2c_params_t;
-
-// SPI specific parameters (for future implementation)
-typedef struct {
-    protocol_base_t base;
-    uint32_t clock_freq;
-    uint8_t mode;        // SPI mode 0-3
-    bool msb_first;
-} spi_params_t;
-
-// Union of all protocol parameters
-typedef union {
-    protocol_base_t base;
-    uart_params_t uart;
-    i2c_params_t i2c;
-    spi_params_t spi;
-} protocol_params_t;
-
 // Edge timing structure
 typedef struct {
     uint32_t timestamp;
     bool level;
 } edge_timing_t;
 
-// Analysis result structure
+// Protocol Metrics structure (similar to PWMMetrics)
 typedef struct {
     protocol_type_t detected_protocol;
-    protocol_params_t params;
+    uint32_t baud_rate;        // For UART
+    uint32_t clock_freq;       // For I2C/SPI
+    float error_margin;
+    uint32_t sample_count;
+    bool is_capturing;
     bool is_valid;
     char error_message[64];
-} protocol_result_t;
+    edge_timing_t edge_buffer[MAX_EDGES];
+    uint32_t edge_count;
+} ProtocolMetrics;
 
-// Function declarations
-void protocol_analyzer_init(uint uart_pin, uint i2c_scl, uint i2c_sda, uint spi_sck, uint spi_mosi, uint spi_miso);
-protocol_result_t analyze_protocol(uint32_t timeout_ms);
-void display_protocol_results(const protocol_result_t* result);
+// Function declarations (simplified like PWM analyzer)
+void protocol_analyzer_init(void);
+ProtocolMetrics get_protocol_metrics(void);
+bool is_protocol_capturing(void);
+void start_protocol_capture(void);
+void stop_protocol_capture(void);
+void handle_protocol_edge(uint gpio, uint32_t events, uint32_t now);
 const char* get_protocol_name(protocol_type_t type);
+static bool analyze_uart_timing(void);
+static void analyze_captured_data(void);
 
 #endif
+
+// protocol_analyzer.c

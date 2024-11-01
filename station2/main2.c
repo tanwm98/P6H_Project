@@ -1,88 +1,125 @@
-#include "pico/stdlib.h"
-#include "hardware/gpio.h"
-#include "hardware/timer.h"
 #include <stdio.h>
+#include "pico/stdlib.h"
+#include "buddy2/adc.h"
+#include "buddy2/pwm.h"
+#include "buddy3/protocol_analyzer.h"
 
-#define BUTTON_PIN 21
-#define PWM_INPUT_PIN 7
-
-// Global variables for PWM metrics
-volatile bool capturing = false;
-volatile uint32_t last_rise_time = 0;
-volatile uint32_t period = 0;
-volatile uint32_t high_time = 0;
-volatile float frequency = 0.0f;
-volatile float duty_cycle = 0.0f;
-
-// Button callback function to toggle capturing
-void button_callback(uint gpio, uint32_t events) {
-    if (gpio == BUTTON_PIN && (events & GPIO_IRQ_EDGE_FALL)) {
-        capturing = !capturing;
-        if (capturing) {
-            printf("PWM capture started on GP%d\n", PWM_INPUT_PIN);
-            period = 0;
-            high_time = 0;
-        } else {
-            printf("PWM capture stopped on GP%d\n", PWM_INPUT_PIN);
-        }
-    }
+static void display_menu(void) {
+    printf("\nSystem Ready:\n");
+    printf("- PWM Analysis (GP7) - Button GP21\n");
+    printf("- ADC Analysis (GP26) - Button GP20\n");
+    printf("- Protocol Analysis - Button GP22\n");
+    printf("  * UART RX: GP4\n");
+    printf("  * I2C SCL: GP8, SDA: GP9\n");
+    printf("  * SPI SCK: GP10, MOSI: GP11, MISO: GP12\n");
+    printf("Press respective buttons to start/stop capture\n\n");
 }
 
-// PWM input callback to calculate frequency and duty cycle
-void pwm_callback(uint gpio, uint32_t events) {
+// Unified GPIO callback
+static void gpio_callback(uint gpio, uint32_t events) {
     uint32_t now = time_us_32();
+    static uint32_t last_button_time = 0;
+    
+    // Button handling with debouncing
+    if (events & GPIO_IRQ_EDGE_FALL) {
+        // Debounce all buttons - ignore events too close together
+        if (now - last_button_time < 200000) { // 200ms debounce
+            return;
+        }
+        last_button_time = now;
 
-    if (gpio == PWM_INPUT_PIN && capturing) {
-        if (events & GPIO_IRQ_EDGE_RISE) {
-            // Calculate period if it's not the first rising edge
-            if (last_rise_time > 0) {
-                period = now - last_rise_time;
-                frequency = 1000000.0f / period;  // Frequency in Hz
-                printf("Rising edge detected, period: %u us\n", period);
-            }
-            last_rise_time = now;  // Update last rise time
-        }
-        else if (events & GPIO_IRQ_EDGE_FALL) {
-            // Calculate high time
-            high_time = now - last_rise_time;
-            if (period > 0) {
-                duty_cycle = (high_time * 100.0f) / period;
-                printf("Falling edge detected, high time: %u us\n", high_time);
+        // PWM Button (GP21)
+        if (gpio == BUTTON_PIN) {
+            if (!is_capturing()) {
+                start_capture();
+            } else {
+                stop_capture();
+                display_menu();
             }
         }
+        // ADC Button (GP20)
+        else if (gpio == DEFAULT_BUTTON_PIN) {
+            if (!is_adc_capturing()) {
+                adc_start_capture();
+            } else {
+                adc_stop_capture();
+                display_menu();
+            }
+        }
+        // Protocol Button (GP22)
+        else if (gpio == PROTOCOL_BUTTON_PIN) {
+            if (!is_protocol_capturing()) {
+                start_protocol_capture();
+            } else {
+                stop_protocol_capture();
+                display_menu();
+            }
+        }
+    }
+
+    // PWM Signal (GP7)
+    if (gpio == PWM_PIN && is_capturing()) {
+        handle_pwm_edge(gpio, events, now);
+    }
+    
+    // Protocol Analysis Signals
+    if ((gpio == UART_RX_PIN || gpio == I2C_SCL_PIN || gpio == I2C_SDA_PIN ||
+         gpio == SPI_SCK_PIN || gpio == SPI_MOSI_PIN || gpio == SPI_MISO_PIN) &&
+        is_protocol_capturing()) {
+        handle_protocol_edge(gpio, events, now);
     }
 }
 
 int main() {
-    // Initialize stdio
     stdio_init_all();
+    sleep_ms(2000);
+    
+    printf("\nIntegrated Signal Analyzer Program\n");
+    printf("================================\n");
+    
+    // Initialize all GPIO interrupts with unified callback
+    gpio_set_irq_enabled_with_callback(PWM_PIN, 
+        GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, true, &gpio_callback);
 
-    // Initialize button GPIO with an interrupt
-    gpio_init(BUTTON_PIN);
-    gpio_set_dir(BUTTON_PIN, GPIO_IN);
-    gpio_pull_up(BUTTON_PIN);
-    gpio_set_irq_enabled_with_callback(BUTTON_PIN, GPIO_IRQ_EDGE_FALL, true, button_callback);
+    // Initialize all modules
+    adc_analyzer_init();
+    pwm_analyzer_init();
+    protocol_analyzer_init();
 
-    // Initialize PWM input GPIO with interrupts for rising and falling edges
-    gpio_init(PWM_INPUT_PIN);
-    gpio_set_dir(PWM_INPUT_PIN, GPIO_IN);
-    gpio_set_irq_enabled_with_callback(PWM_INPUT_PIN, GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, true, pwm_callback);
+    // Enable interrupts for other pins without callback
+    gpio_set_irq_enabled(BUTTON_PIN, GPIO_IRQ_EDGE_FALL, true);  // PWM button
+    gpio_set_irq_enabled(DEFAULT_BUTTON_PIN, GPIO_IRQ_EDGE_FALL, true);  // ADC button
+    
+    // Enable protocol analysis pin interrupts
+    gpio_set_irq_enabled(UART_RX_PIN, GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, true);
+    gpio_set_irq_enabled(I2C_SCL_PIN, GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, true);
+    gpio_set_irq_enabled(I2C_SDA_PIN, GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, true);
+    gpio_set_irq_enabled(SPI_SCK_PIN, GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, true);
+    gpio_set_irq_enabled(SPI_MOSI_PIN, GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, true);
+    gpio_set_irq_enabled(SPI_MISO_PIN, GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, true);
+    gpio_set_irq_enabled(PROTOCOL_BUTTON_PIN, GPIO_IRQ_EDGE_FALL, true);
 
-    while (true) {
-        if (capturing && period > 0) {
-            // Display frequency and duty cycle
-            printf("Frequency: %.2f Hz, Duty Cycle: %.1f%%\n", frequency, duty_cycle);
+    display_menu();
 
-            // Reset values for the next capture cycle
-            period = 0;
-            high_time = 0;
-
-            sleep_ms(500);  // Adjust capture interval as needed
-        } else if (!capturing) {
-            printf("Capture is inactive. Press GP21 to start.\n");
-            sleep_ms(1000);  // Delay when not capturing
+    // Main loop
+    while (1) {
+        sleep_ms(1000);
+        
+        // Display PWM status
+        if (is_capturing()) {
+            PWMMetrics pwm = get_pwm_metrics();
+            printf("PWM - Frequency: %.2f Hz, Duty Cycle: %.1f%%\n", 
+                   pwm.frequency, pwm.duty_cycle);
+        }
+        
+        // Display ADC status
+        if (is_adc_capturing() && is_transfer_complete()) {
+            clear_transfer_complete();
+            float freq = analyze_current_capture();
+            if (freq > 0) {
+                printf("ADC - Frequency: %.1f Hz\n", freq);
+            }
         }
     }
-
     return 0;
 }
