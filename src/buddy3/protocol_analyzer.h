@@ -7,6 +7,14 @@
 #include "hardware/timer.h"
 #include <math.h>
 
+// Pin Definitions
+#define UART_RX_PIN 4 
+#define I2C_SCL_PIN 8     
+#define I2C_SDA_PIN 9 
+#define SPI_SCK_PIN 10  
+#define SPI_MOSI_PIN 11  
+#define SPI_MISO_PIN 12   
+
 // Protocol types
 typedef enum {
     PROTOCOL_UNKNOWN = 0,

@@ -10,7 +10,8 @@
         "hw_config.h": "c",
         "my_debug.h": "c",
         "stdbool.h": "c",
-        "rp2040.h": "c"
+        "rp2040.h": "c",
+        "protocol_analyzer.h": "c"
     },
     "C_Cpp.errorSquiggles": "enabled"
 }
