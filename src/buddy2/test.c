@@ -1,4 +1,4 @@
-// #include "signal_analyzer.h"
+// #include "test.h"
 
 
 // // Global variables
@@ -8,14 +8,63 @@
 // static volatile PWMMetrics pwm_metrics = {0};
 // static volatile float analog_frequency = 0.0f;
 
-// // Forward declarations of internal functions
-// static void gpio_callback(uint gpio, uint32_t events);
-// static float analyze_capture(void);
-// static void dma_handler(void);
-// static void setup_adc_capture(void);
+// // In signal_analyzer.c - Add these global variables at the top with other globals
+// volatile bool is_system_active = false;
+// volatile uint32_t last_button_press = 0;
 
-// // GPIO interrupt handler
+// // Add button callback function
+// static void button_callback(uint gpio, uint32_t events) {
+//     uint32_t now = time_us_32();
+    
+//     // Basic debouncing
+//     if (now - last_button_press < DEBOUNCE_TIME) {
+//         return;
+//     }
+//     last_button_press = now;
+    
+//     if (gpio == BUTTON_PIN && (events & GPIO_IRQ_EDGE_FALL)) {
+//         is_system_active = !is_system_active;  // Toggle system state
+        
+//         if (is_system_active) {
+//             printf("\nSystem Activated:\n");
+//             printf("- Digital (GP2) monitoring started\n");
+//             printf("- PWM (GP7) monitoring started\n");
+//             printf("- Analog (GP26) monitoring started\n");
+            
+//             // Enable GPIO interrupts
+//             gpio_set_irq_enabled(DIGITAL_PIN, GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, true);
+//             gpio_set_irq_enabled(PWM_PIN, GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, true);
+            
+//             // Start ADC/DMA
+//             adc_run(true);
+//         } else {
+//             printf("\nSystem Deactivated:\n");
+//             printf("- Digital (GP2) monitoring stopped\n");
+//             printf("- PWM (GP7) monitoring stopped\n");
+//             printf("- Analog (GP26) monitoring stopped\n");
+            
+//             // Disable GPIO interrupts
+//             gpio_set_irq_enabled(DIGITAL_PIN, GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, false);
+//             gpio_set_irq_enabled(PWM_PIN, GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, false);
+            
+//             // Stop ADC/DMA
+//             adc_run(false);
+//             adc_fifo_drain();
+            
+//             // Reset all measurements
+//             memset((void*)&digital_signal, 0, sizeof(DigitalSignal));
+//             memset((void*)&pwm_metrics, 0, sizeof(PWMMetrics));
+//             analog_frequency = 0.0f;
+//         }
+//     }
+// }
+
+// // Modify gpio_callback to only process when system is active
 // static void gpio_callback(uint gpio, uint32_t events) {
+//     if (!is_system_active) {
+//         return;  // Don't process if system is inactive
+//     }
+
 //     uint32_t now = time_us_32();
 //     if(gpio == DIGITAL_PIN) {
 //         if(events & GPIO_IRQ_EDGE_RISE) {
@@ -111,11 +160,33 @@
 //     }
 //     return frequency;
 // }
+
+// static void dma_handler(void) {
+//     dma_hw->ints0 = 1u << dma_chan;
+//     adc_run(false);
+//     analyze_capture();
+//     adc_fifo_drain();
+
+//     dma_channel_config cfg = dma_channel_get_default_config(dma_chan);
+//     channel_config_set_transfer_data_size(&cfg, DMA_SIZE_16);
+//     channel_config_set_read_increment(&cfg, false);
+//     channel_config_set_write_increment(&cfg, true);
+//     channel_config_set_dreq(&cfg, DREQ_ADC);
+    
+//     dma_channel_configure(
+//         dma_chan,
+//         &cfg,
+//         capture_buf,
+//         &adc_hw->fifo,
+//         CAPTURE_DEPTH,
+//         true
+//     );
+//     adc_run(true);
+// }
+
 // static void setup_adc_capture(void) {
 //     printf("Initializing ADC and DMA...\n");
-    
-//     // Initialize ADC
-//     adc_gpio_init(ANALOG_PIN);
+//     adc_gpio_init(26);
 //     adc_init();
 //     adc_select_input(0);
     
@@ -130,15 +201,8 @@
 //     adc_set_clkdiv(4800);
 //     adc_fifo_drain();
     
-//     // Claim an unused DMA channel dynamically
 //     dma_chan = dma_claim_unused_channel(true);
-//     if (dma_chan < 0) {
-//         printf("Error: Could not claim a DMA channel\n");
-//         return;
-//     }
 //     printf("Using DMA channel %d\n", dma_chan);
-    
-//     // Configure DMA
 //     dma_channel_set_irq0_enabled(dma_chan, true);
 //     irq_set_exclusive_handler(DMA_IRQ_0, dma_handler);
 //     irq_set_enabled(DMA_IRQ_0, true);
@@ -162,32 +226,6 @@
 //     printf("ADC and DMA initialization complete\n");
 // }
 
-// // Modify dma_handler to use the claimed channel
-// static void dma_handler(void) {
-//     if (dma_chan < 0) return;  // Safety check
-    
-//     dma_hw->ints0 = 1u << dma_chan;
-//     adc_run(false);
-//     analyze_capture();
-//     adc_fifo_drain();
-
-//     dma_channel_config cfg = dma_channel_get_default_config(dma_chan);
-//     channel_config_set_transfer_data_size(&cfg, DMA_SIZE_16);
-//     channel_config_set_read_increment(&cfg, false);
-//     channel_config_set_write_increment(&cfg, true);
-//     channel_config_set_dreq(&cfg, DREQ_ADC);
-    
-//     dma_channel_configure(
-//         dma_chan,
-//         &cfg,
-//         capture_buf,
-//         &adc_hw->fifo,
-//         CAPTURE_DEPTH,
-//         true
-//     );
-//     adc_run(true);
-// }
-
 // // Public functions
 // void signal_analyzer_init(void) {
 //     // Initialize GPIOs for digital and PWM inputs
@@ -196,21 +234,31 @@
 //     gpio_set_dir(DIGITAL_PIN, GPIO_IN);
 //     gpio_set_dir(PWM_PIN, GPIO_IN);
     
-//     // Setup GPIO interrupts
-//     gpio_set_irq_enabled_with_callback(DIGITAL_PIN, 
-//         GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, true, &gpio_callback);
-//     gpio_set_irq_enabled_with_callback(PWM_PIN, 
-//         GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, true, &gpio_callback);
+//     // Initialize button GPIO
+//     gpio_init(BUTTON_PIN);
+//     gpio_set_dir(BUTTON_PIN, GPIO_IN);
+//     gpio_pull_up(BUTTON_PIN);
     
-//     // Initialize ADC and DMA
+//     // Setup GPIO interrupts but start disabled
+//     gpio_set_irq_enabled_with_callback(DIGITAL_PIN, 
+//         GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, false, &gpio_callback);
+//     gpio_set_irq_enabled_with_callback(PWM_PIN, 
+//         GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, false, &gpio_callback);
+    
+//     // Setup button interrupt
+//     gpio_set_irq_enabled_with_callback(BUTTON_PIN, 
+//         GPIO_IRQ_EDGE_FALL, true, &button_callback);
+    
+//     // Initialize ADC and DMA but don't start yet
 //     setup_adc_capture();
+//     adc_run(false);
     
 //     printf("Signal Analyzer Ready\n");
+//     printf("Press GP20 button to start/stop all measurements:\n");
 //     printf("- Digital (GP2): HIGH/LOW states\n");
 //     printf("- PWM (GP7): Frequency and Duty Cycle\n");
-//     printf("- Analog (GP26): Frequency measurement enabled\n");
+//     printf("- Analog (GP26): Frequency measurement\n");
 // }
-
 // float get_analog_frequency(void) {
 //     return analog_frequency;
 // }

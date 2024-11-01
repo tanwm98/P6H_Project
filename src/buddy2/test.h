@@ -31,6 +31,13 @@
 // bool save_captured_pulses(void);
 
 
+// #define BUTTON_PIN 20     // GP20 for global control
+// #define DEBOUNCE_TIME 200000  // 200ms debounce in microseconds
+
+// // Add these to the existing declarations
+// extern volatile bool is_system_active;
+// extern volatile uint32_t last_button_press;
+
 // // Digital signal measurements
 // typedef struct {
 //     uint32_t last_rise_time;
@@ -59,8 +66,5 @@
 // bool is_capture_complete(void);
 // void reset_capture(void);
 // bool save_captured_pulses(void);
-
-
-
 
 // #endif // SIGNAL_ANALYZER_H

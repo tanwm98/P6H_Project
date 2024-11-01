@@ -1,26 +1,31 @@
-#include "buddy1/sd_card.h"
-#include "buddy2/signal_analyzer.h"
-#include "buddy3/protocol_analyzer.h"
-#include "buddy3/signal_generator.h"
-
+#include "buddy2/adc.h"
+#include <stdio.h>
 
 int main() {
     stdio_init_all();
-    sleep_ms(2000);  // Give time for USB serial to initialize
+    sleep_ms(2000);  // Give time for serial to initialize
     
-    printf("Protocol Analyzer Starting...\n");
-
-    // Initialize protocol analyzer with all pins
-    protocol_analyzer_init(UART_RX_PIN, I2C_SCL_PIN, I2C_SDA_PIN, 
-                         SPI_SCK_PIN, SPI_MOSI_PIN, SPI_MISO_PIN);
-
-    while(1) {
-        printf("\nAnalyzing signals...\n");
-        protocol_result_t result = analyze_protocol(1000);
-        display_protocol_results(&result);
-        
-        sleep_ms(1000);  // Wait before next analysis
+    // Create and initialize ADC configuration
+    ADC_Config adc_config;
+    adc_init_config(&adc_config);
+    
+    // Initialize ADC hardware
+    if (!adc_init_hardware(&adc_config)) {
+        printf("Failed to initialize ADC hardware\n");
+        return -1;
     }
     
+    printf("\nSystem Ready - Press button to start/stop continuous capture\n");
+    
+    while (true) {
+        if (adc_config.transfer_complete) {
+            adc_analyze_capture(&adc_config);
+            adc_config.transfer_complete = false;
+        }
+        sleep_ms(100);
+    }
+    
+    // Cleanup (though we never reach this in this example)
+    adc_cleanup(&adc_config);
     return 0;
 }
