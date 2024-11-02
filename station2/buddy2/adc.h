@@ -7,7 +7,7 @@
 #include <stdbool.h>
 
 #define DEFAULT_CAPTURE_DEPTH 10000
-#define DEFAULT_BUTTON_PIN 21
+#define ADC_BUTTON_PIN 21
 #define DEFAULT_ANALOG_PIN 26
 
 // Public function declarations

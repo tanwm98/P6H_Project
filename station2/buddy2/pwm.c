@@ -7,7 +7,7 @@ static void gpio_callback(uint gpio, uint32_t events) {
     uint32_t now = time_us_32();
 
     // Handle button press
-    if (gpio == BUTTON_PIN && (events & GPIO_IRQ_EDGE_FALL)) {
+    if (gpio == PWM_BUTTON_PIN && (events & GPIO_IRQ_EDGE_FALL)) {
         // Debounce - ignore events too close together
         if (now - last_button_time < 200000) { // 200ms debounce
             return;
@@ -73,9 +73,9 @@ void pwm_analyzer_init(void) {
     gpio_set_dir(PWM_PIN, GPIO_IN);
     
     // Initialize button with pull-up
-    gpio_init(BUTTON_PIN);
-    gpio_set_dir(BUTTON_PIN, GPIO_IN);
-    gpio_pull_up(BUTTON_PIN);
+    gpio_init(PWM_BUTTON_PIN);
+    gpio_set_dir(PWM_BUTTON_PIN, GPIO_IN);
+    gpio_pull_up(PWM_BUTTON_PIN);
     
     // Remove the GPIO interrupt setup as it's now handled in main
     

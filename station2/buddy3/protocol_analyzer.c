@@ -1,141 +1,203 @@
 #include "protocol_analyzer.h"
+#include "uart.h"
+#include "i2c.h"
+#include "spi.h"
 
 static volatile ProtocolMetrics protocol_metrics = {0};
-
-// Standard UART baud rates
-static const uint32_t STANDARD_BAUDS[] = {
-    300, 1200, 2400, 4800, 9600, 19200, 
-    38400, 57600, 74880, 115200
-};
+static protocol_patterns_t patterns = {0};
 
 void protocol_analyzer_init(void) {
-    // Initialize pins
-    gpio_init(UART_RX_PIN);
-    gpio_set_dir(UART_RX_PIN, GPIO_IN);
-    gpio_pull_up(UART_RX_PIN);
+    uart_analyzer_init();
+    // i2c_analyzer_init();
+    // spi_analyzer_init();
     
-    gpio_init(I2C_SCL_PIN);
-    gpio_init(I2C_SDA_PIN);
-    gpio_set_dir(I2C_SCL_PIN, GPIO_IN);
-    gpio_set_dir(I2C_SDA_PIN, GPIO_IN);
-    gpio_pull_up(I2C_SCL_PIN);
-    gpio_pull_up(I2C_SDA_PIN);
-    
-    gpio_init(SPI_SCK_PIN);
-    gpio_init(SPI_MOSI_PIN);
-    gpio_init(SPI_MISO_PIN);
-    gpio_set_dir(SPI_SCK_PIN, GPIO_IN);
-    gpio_set_dir(SPI_MOSI_PIN, GPIO_IN);
-    gpio_set_dir(SPI_MISO_PIN, GPIO_IN);
-    
-    // Initialize metrics
     protocol_metrics.is_capturing = false;
     protocol_metrics.edge_count = 0;
     protocol_metrics.detected_protocol = PROTOCOL_UNKNOWN;
+    memset(&patterns, 0, sizeof(patterns));
+}
+
+static void detect_protocol_patterns(uint gpio, uint32_t events, uint32_t now) {
+    static uint32_t last_edge_time = 0;
+    static bool last_level = false;
+    uint32_t interval = now - last_edge_time;
+    bool current_level = (events & GPIO_IRQ_EDGE_RISE) ? 1 : 0;  // Use event type
+    // UART start bit detection (high-to-low transition followed by 8-10 bits)
+    if (last_level && !current_level) {
+        patterns.uart_start_bits++;
+    }
+    
+    // I2C START condition (SDA falling while SCL high)
+    if (gpio == I2C_SDA_PIN && !current_level && gpio_get(I2C_SCL_PIN)) {
+        patterns.i2c_start_conditions++;
+    }
+    
+    // SPI clock edge counting
+    if (gpio == SPI_SCK_PIN && (events & GPIO_IRQ_EDGE_RISE)) {
+        patterns.spi_clock_edges++;
+    }
+    
+    last_edge_time = now;
+    last_level = current_level;
 }
 
 void handle_protocol_edge(uint gpio, uint32_t events, uint32_t now) {
     if (!protocol_metrics.is_capturing || protocol_metrics.edge_count >= MAX_EDGES) return;
-    
     edge_timing_t edge;
     edge.timestamp = now;
-    edge.level = gpio_get(gpio);
+    edge.level = (events & GPIO_IRQ_EDGE_RISE) ? 1 : 0;
     
     protocol_metrics.edge_buffer[protocol_metrics.edge_count++] = edge;
     
-    // If we have enough edges, analyze the protocol
-    if (protocol_metrics.edge_count >= MIN_EDGES_FOR_VALID) {
-        analyze_captured_data();
+    // Detect protocol patterns in real-time
+    detect_protocol_patterns(gpio, events, now);
+    
+    // Auto-identify protocol based on patterns
+    identify_protocol();
+    
+    // If protocol identified, analyze specific protocol metrics
+    if (protocol_metrics.detected_protocol != PROTOCOL_UNKNOWN) {
+        analyze_protocol_data();
     }
 }
 
-static void analyze_captured_data(void) {
-    // Reset previous results
-    protocol_metrics.is_valid = false;
-    protocol_metrics.detected_protocol = PROTOCOL_UNKNOWN;
-    protocol_metrics.baud_rate = 0;
-    protocol_metrics.clock_freq = 0;
-    protocol_metrics.error_margin = 0;
-    
-    // Try UART analysis first
-    if (analyze_uart_timing()) {
+static void identify_protocol(void) {
+    // Simple threshold-based protocol identification
+    if (patterns.uart_start_bits > 1) {
         protocol_metrics.detected_protocol = PROTOCOL_UART;
+    } else if (patterns.i2c_start_conditions > 2) {
+        protocol_metrics.detected_protocol = PROTOCOL_I2C;
+    } else if (patterns.spi_clock_edges > 8) {
+        protocol_metrics.detected_protocol = PROTOCOL_SPI;
+    }
+}
+
+static void analyze_protocol_data(void) {
+    switch (protocol_metrics.detected_protocol) {
+        case PROTOCOL_UART:
+            analyze_uart_data();
+            break;
+        case PROTOCOL_I2C:
+            //analyze_i2c_data();
+            break;
+        case PROTOCOL_SPI:
+            //analyze_spi_data();
+            break;
+        default:
+            break;
+    }
+}
+
+static void analyze_uart_data(void) {
+    UARTEdgeTiming uart_edges[MAX_EDGES];
+    UARTMetrics uart_metrics;
+    
+    // Convert edge buffer to UART timing
+    for (int i = 0; i < protocol_metrics.edge_count; i++) {
+        uart_edges[i].timestamp = protocol_metrics.edge_buffer[i].timestamp;
+        uart_edges[i].level = protocol_metrics.edge_buffer[i].level;
+    }
+    
+    if (uart_analyze_timing(uart_edges, protocol_metrics.edge_count, &uart_metrics)) {
         protocol_metrics.is_valid = true;
-        printf("Protocol detected: UART at %lu baud\n", protocol_metrics.baud_rate);
+        protocol_metrics.baud_rate = uart_metrics.baud_rate;
+        protocol_metrics.error_margin = uart_metrics.error_margin;
+        protocol_metrics.sample_count = uart_metrics.sample_count;
+        
+        printf("UART detected - Baud: %lu, Error: %.1f%%, Parity Errors: %lu\n", 
+               protocol_metrics.baud_rate, 
+               protocol_metrics.error_margin,
+               patterns.parity_errors);
     }
-    // Add I2C and SPI detection here when implemented
 }
 
-static bool analyze_uart_timing(void) {
-    uint32_t min_interval = UINT32_MAX;
-    uint32_t max_interval = 0;
+void start_protocol_capture(void) {
+    uart_debug_reset();
+    // Reset all metrics and patterns
+    protocol_metrics.edge_count = 0;
+    protocol_metrics.detected_protocol = PROTOCOL_UNKNOWN;
+    protocol_metrics.is_valid = false;
+    protocol_metrics.baud_rate = 0;
+    protocol_metrics.error_margin = 0;
+    memset(&patterns, 0, sizeof(patterns));
     
-    // Calculate intervals between edges
-    for (int i = 1; i < protocol_metrics.edge_count; i++) {
-        uint32_t interval = protocol_metrics.edge_buffer[i].timestamp - 
-                           protocol_metrics.edge_buffer[i-1].timestamp;
-        if (interval > 5 && interval < 1000000) {
-            if (interval < min_interval) min_interval = interval;
-            if (interval > max_interval) max_interval = interval;
-        }
-    }
-    
-    // Calculate approximate baud rate
-    uint32_t raw_baud = 1000000 / min_interval;
-    
-    // Find closest standard baud rate
-    uint32_t closest_baud = 9600;
-    float min_error = 100.0f;
-    
-    for (int i = 0; i < sizeof(STANDARD_BAUDS)/sizeof(STANDARD_BAUDS[0]); i++) {
-        float error = fabs((float)raw_baud - (float)STANDARD_BAUDS[i]) / 
-                     (float)STANDARD_BAUDS[i] * 100.0f;
-        if (error < min_error) {
-            min_error = error;
-            closest_baud = STANDARD_BAUDS[i];
-        }
-    }
-    
-    protocol_metrics.baud_rate = closest_baud;
-    protocol_metrics.error_margin = min_error;
-    protocol_metrics.sample_count = protocol_metrics.edge_count;
-    
-    return min_error < 5.0f;
+    protocol_metrics.is_capturing = true;
+    printf("Starting protocol capture and analysis...\n");
 }
 
-ProtocolMetrics get_protocol_metrics(void) {
-    ProtocolMetrics metrics = protocol_metrics;
-    return metrics;
+void stop_protocol_capture(void) {
+    protocol_metrics.is_capturing = false;
+    
+    // Print final analysis results
+    printf("\nProtocol Analysis Results:\n");
+    printf("Detected Protocol: %s\n", get_protocol_name(protocol_metrics.detected_protocol));
+    
+    switch (protocol_metrics.detected_protocol) {
+        case PROTOCOL_UART:
+            printf("UART Metrics:\n");
+            printf("- Baud Rate: %lu\n", protocol_metrics.baud_rate);
+            printf("- Error Margin: %.1f%%\n", protocol_metrics.error_margin);
+            printf("- Parity Errors: %lu\n", patterns.parity_errors);
+            printf("- Frame Errors: %lu\n", patterns.frame_errors);
+            break;
+            
+        case PROTOCOL_I2C:
+            printf("I2C Metrics:\n");
+            printf("- Start Conditions: %lu\n", patterns.i2c_start_conditions);
+            break;
+            
+        case PROTOCOL_SPI:
+            printf("SPI Metrics:\n");
+            printf("- Clock Transitions: %lu\n", patterns.spi_clock_edges);
+            break;
+            
+        default:
+            printf("No valid protocol detected\n");
+    }
+    
+    // Reset state
+    protocol_metrics.edge_count = 0;
+    protocol_metrics.detected_protocol = PROTOCOL_UNKNOWN;
+    protocol_metrics.is_valid = false;
+}
+
+const char* get_protocol_name(protocol_type_t type){
+    switch (type) {
+        case PROTOCOL_UART:
+            return "UART";
+        case PROTOCOL_I2C:
+            return "I2C";
+        case PROTOCOL_SPI:
+            return "SPI";
+        default:
+            return "Unknown";
+    }
 }
 
 bool is_protocol_capturing(void) {
     return protocol_metrics.is_capturing;
 }
 
-void start_protocol_capture(void) {
-    protocol_metrics.is_capturing = true;
-    protocol_metrics.edge_count = 0;
-    protocol_metrics.detected_protocol = PROTOCOL_UNKNOWN;
-    printf("Starting protocol capture...\n");
+bool is_protocol_valid(void) {
+    return protocol_metrics.is_valid;
 }
 
-void stop_protocol_capture(void) {
-    protocol_metrics.is_capturing = false;
-    if (protocol_metrics.is_valid) {
-        printf("Protocol Analysis Results:\n");
-        printf("Protocol: %s\n", get_protocol_name(protocol_metrics.detected_protocol));
-        if (protocol_metrics.detected_protocol == PROTOCOL_UART) {
-            printf("Baud Rate: %lu\n", protocol_metrics.baud_rate);
-            printf("Error Margin: %.1f%%\n", protocol_metrics.error_margin);
-        }
-    }
+float get_error_margin(void) {
+    return protocol_metrics.error_margin;
 }
 
-const char* get_protocol_name(protocol_type_t type) {
-    switch (type) {
-        case PROTOCOL_UART: return "UART";
-        case PROTOCOL_I2C:  return "I2C";
-        case PROTOCOL_SPI:  return "SPI";
-        default:           return "Unknown";
-    }
+uint32_t get_baud_rate(void) {
+    return protocol_metrics.baud_rate;
+}
+protocol_type_t get_detected_protocol(void) {
+    return protocol_metrics.detected_protocol;
+}
+uint32_t get_sample_count(void) {
+    return protocol_metrics.sample_count;
+}
+uint32_t get_edge_count(void) {
+    return protocol_metrics.edge_count;
+}
+void set_edge_count(uint32_t count) {
+    protocol_metrics.edge_count = count;
 }

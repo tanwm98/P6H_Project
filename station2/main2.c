@@ -29,7 +29,7 @@ static void gpio_callback(uint gpio, uint32_t events) {
         last_button_time = now;
 
         // PWM Button (GP21)
-        if (gpio == BUTTON_PIN) {
+        if (gpio == PWM_BUTTON_PIN) {
             if (!is_capturing()) {
                 start_capture();
             } else {
@@ -38,7 +38,7 @@ static void gpio_callback(uint gpio, uint32_t events) {
             }
         }
         // ADC Button (GP20)
-        else if (gpio == DEFAULT_BUTTON_PIN) {
+        else if (gpio == ADC_BUTTON_PIN) {
             if (!is_adc_capturing()) {
                 adc_start_capture();
             } else {
@@ -87,8 +87,8 @@ int main() {
     protocol_analyzer_init();
 
     // Enable interrupts for other pins without callback
-    gpio_set_irq_enabled(BUTTON_PIN, GPIO_IRQ_EDGE_FALL, true);  // PWM button
-    gpio_set_irq_enabled(DEFAULT_BUTTON_PIN, GPIO_IRQ_EDGE_FALL, true);  // ADC button
+    gpio_set_irq_enabled(PWM_BUTTON_PIN, GPIO_IRQ_EDGE_FALL, true);  // PWM button
+    gpio_set_irq_enabled(ADC_BUTTON_PIN, GPIO_IRQ_EDGE_FALL, true);  // ADC button
     
     // Enable protocol analysis pin interrupts
     gpio_set_irq_enabled(UART_RX_PIN, GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, true);
