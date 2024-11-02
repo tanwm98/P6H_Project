@@ -11,7 +11,8 @@
         "my_debug.h": "c",
         "stdbool.h": "c",
         "rp2040.h": "c",
-        "protocol_analyzer.h": "c"
+        "protocol_analyzer.h": "c",
+        "digital.h": "c"
     },
     "C_Cpp.errorSquiggles": "enabled"
 }

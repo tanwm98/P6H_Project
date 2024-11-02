@@ -1,5 +1,6 @@
 #include "digital.h"
 #include "buddy1/sd_card.h"
+#include "buddy5/wifi.h"
 #include <string.h>
 
 static PulseCapture capture = {0};
@@ -32,20 +33,31 @@ static void gpio_callback(uint gpio, uint32_t events) {
     uint32_t current_time = time_us_32();
     bool is_rising = (events & GPIO_IRQ_EDGE_RISE) != 0;
     
-    // Only process if this is the edge we're expecting
     if ((is_rising && capture.expecting_high) || (!is_rising && !capture.expecting_high)) {
         if (capture.transition_count < MAX_TRANSITIONS) {
-            capture.transitions[capture.transition_count].time = current_time;
+            // Store relative time from start
+            uint32_t relative_time = current_time - capture.start_time;
+            capture.transitions[capture.transition_count].time = relative_time;
             capture.transitions[capture.transition_count].state = is_rising;
             capture.transition_count++;
-            capture.expecting_high = !capture.expecting_high;  // Toggle expectation
+            capture.expecting_high = !capture.expecting_high;
             
-            printf("Transition %d: %s at %lu us\n", 
-                capture.transition_count,
-                is_rising ? "HIGH" : "LOW",
-                current_time - capture.start_time);
+            // If this isn't the first transition, calculate and print interval
+            if (capture.transition_count > 1) {
+                uint32_t interval = relative_time - 
+                    capture.transitions[capture.transition_count-2].time;
+                printf("Transition %d: %s at %lu us (interval: %lu us)\n", 
+                    capture.transition_count,
+                    is_rising ? "HIGH" : "LOW",
+                    relative_time,
+                    interval);
+            } else {
+                printf("Transition %d: %s at %lu us\n", 
+                    capture.transition_count,
+                    is_rising ? "HIGH" : "LOW",
+                    relative_time);
+            }
             
-            // Check if we've captured all transitions (10 high + 10 low = 20)
             if (capture.transition_count >= MAX_TRANSITIONS) {
                 capture.capturing = false;
                 printf("Capture complete: %d transitions captured\n", capture.transition_count);
@@ -82,26 +94,57 @@ void replay_pulses(uint8_t num_times) {
 
     printf("Replaying %d transitions %d times...\n", capture.transition_count, num_times);
     
+    // Wait 2 seconds before starting replay
+    sleep_ms(2000);
+    
     for (int replay = 0; replay < num_times; replay++) {
+        printf("Starting replay %d of %d\n", replay + 1, num_times);
         uint32_t start_time = time_us_32();
+        uint32_t last_transition_time = start_time;
+        
+        // Reset output to initial state
+        gpio_put(DIGITAL_OUTPUT_PIN, 0);
         
         for (int i = 0; i < capture.transition_count; i++) {
-            uint32_t relative_time = capture.transitions[i].time - capture.start_time;
+            uint32_t interval;
+            if (i == 0) {
+                interval = 1000; // 1ms initial delay
+            } else {
+                // Use the original captured interval
+                interval = capture.transitions[i].time - capture.transitions[i-1].time;
+            }
             
-            // Wait until it's time for this transition
-            while (time_us_32() - start_time < relative_time) {
+            // Calculate target time for this transition
+            uint32_t target_time = last_transition_time + interval;
+            
+            // Wait precisely until the target time
+            while (time_us_32() < target_time) {
                 tight_loop_contents();
             }
+            
+            // Set output and record actual time
             gpio_put(DIGITAL_OUTPUT_PIN, capture.transitions[i].state);
+            uint32_t current_time = time_us_32();
+            uint32_t actual_interval = current_time - last_transition_time;
+            last_transition_time = current_time;
+            
+            printf("Replay transition %2d: %4s at %lu us (interval: %lu us)\n",
+                   i + 1,
+                   capture.transitions[i].state ? "HIGH" : "LOW",
+                   current_time - start_time,
+                   actual_interval);
         }
         
-        // Add a small delay between replays
-        sleep_ms(100);
+        printf("Replay %d complete\n", replay + 1);
+        
+        if (replay < num_times - 1) {
+            sleep_ms(100);  // Small delay between replays
+        }
     }
     
     // Ensure we end in a low state
     gpio_put(DIGITAL_OUTPUT_PIN, 0);
-    printf("Replay complete\n");
+    printf("All replays complete\n");
 }
 
 void save_pulses_to_file(const char* filename) {
@@ -110,28 +153,43 @@ void save_pulses_to_file(const char* filename) {
         return;
     }
 
-    // Create new file
-    createNewFile(filename);
+    // Get current timestamp
+    uint32_t timestamp = get_timestamp();
+    char timestamp_str[32];
+    format_timestamp(timestamp, timestamp_str, sizeof(timestamp_str));
+    
+    // First time creation - add CSV header
+    FIL file;
+    FRESULT fr = f_open(&file, filename, FA_READ);
+    bool need_header = (fr != FR_OK);
+    f_close(&file);
+    
+    if (need_header) {
+        char header[] = "timestamp,timestamp_readable,transition_number,state,time_us\n";
+        writeDataToSD(filename, header, false);
+    }
 
+    // Save each transition with proper timestamp
     char buffer[256];
-    // Save number of transitions as first line
-    snprintf(buffer, sizeof(buffer), "TRANSITIONS:%d\n", capture.transition_count);
-    writeDataToSD(filename, buffer, true);
-
-    // Save each transition
     for (int i = 0; i < capture.transition_count; i++) {
-        uint32_t relative_time = capture.transitions[i].time - capture.start_time;
-        snprintf(buffer, sizeof(buffer), "%lu,%d\n", relative_time, capture.transitions[i].state);
+        snprintf(buffer, sizeof(buffer), "%lu,%s,%d,%d,%lu\n",
+                timestamp,
+                timestamp_str,
+                i + 1,
+                capture.transitions[i].state,
+                capture.transitions[i].time);
         writeDataToSD(filename, buffer, true);
     }
-    
-    printf("Successfully saved %d transitions to %s\n", capture.transition_count, filename);
+
+    printf("Successfully saved capture at %s with %d transitions to %s\n", 
+           timestamp_str, capture.transition_count, filename);
 }
 
 bool load_pulses_from_file(const char* filename) {
     FIL file;
     FRESULT fr;
-    char line[100];
+    char line[256];
+    uint32_t last_timestamp = 0;
     
     // Reset current capture state
     memset(&capture, 0, sizeof(capture));
@@ -143,30 +201,45 @@ bool load_pulses_from_file(const char* filename) {
         printf("Failed to open file for reading: %s\n", filename);
         return false;
     }
-    
-    // Read first line containing number of transitions
-    if (f_gets(line, sizeof(line), &file)) {
-        int num_transitions;
-        if (sscanf(line, "TRANSITIONS:%d", &num_transitions) != 1) {
-            printf("Invalid file format\n");
-            f_close(&file);
-            return false;
-        }
-    }
 
-    // Read each transition
-    while (f_gets(line, sizeof(line), &file) && capture.transition_count < MAX_TRANSITIONS) {
-        uint32_t relative_time;
-        int state;
-        
-        if (sscanf(line, "%lu,%d", &relative_time, &state) == 2) {
-            capture.transitions[capture.transition_count].time = capture.start_time + relative_time;
-            capture.transitions[capture.transition_count].state = (bool)state;
-            capture.transition_count++;
+    // Skip header line
+    f_gets(line, sizeof(line), &file);
+    
+    // Read and store each transition
+    uint32_t current_timestamp;
+    char timestamp_str[64];
+    int transition_num;
+    int state;
+    uint32_t time_us;
+
+    while (f_gets(line, sizeof(line), &file)) {
+        if (sscanf(line, "%lu,%[^,],%d,%d,%lu",
+                   &current_timestamp,
+                   timestamp_str,
+                   &transition_num,
+                   &state,
+                   &time_us) == 5) {
+            
+            // Only process transitions from the latest timestamp
+            if (current_timestamp >= last_timestamp) {
+                if (current_timestamp > last_timestamp) {
+                    // New sequence found, reset count
+                    capture.transition_count = 0;
+                    last_timestamp = current_timestamp;
+                }
+                
+                if (capture.transition_count < MAX_TRANSITIONS) {
+                    capture.transitions[capture.transition_count].time = capture.start_time + time_us;
+                    capture.transitions[capture.transition_count].state = (bool)state;
+                    capture.transition_count++;
+                }
+            }
         }
     }
     
     f_close(&file);
-    printf("Loaded %d transitions from %s\n", capture.transition_count, filename);
+    
+    printf("Loaded capture from %s with %d transitions\n", 
+           timestamp_str, capture.transition_count);
     return capture.transition_count > 0;
 }

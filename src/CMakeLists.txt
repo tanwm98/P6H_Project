@@ -26,6 +26,8 @@ target_link_libraries(${NAME}
     hardware_i2c
     hardware_gpio
     FatFs_SPI
+    pico_cyw43_arch_lwip_poll  
+    pico_lwip_sntp  
 )
 
 pico_enable_stdio_usb(${NAME} 1)
