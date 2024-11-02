@@ -1,9 +1,12 @@
 add_executable(main2
     main2.c
-    buddy3/protocol_analyzer.c
     buddy2/signal_analyzer.c
     buddy2/adc.c
     buddy2/pwm.c
+    buddy3/protocol_analyzer.c
+    buddy3/uart.c
+    buddy3/i2c.c
+    buddy3/spi.c
 )
 
 
