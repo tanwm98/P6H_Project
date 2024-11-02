@@ -6,12 +6,12 @@
 
 static void display_menu(void) {
     printf("\nSystem Ready:\n");
-    printf("- PWM Analysis (GP7) - Button GP21\n");
-    printf("- ADC Analysis (GP26) - Button GP20\n");
+    printf("- PWM Analysis (GP7) - Button GP20\n");
+    printf("- ADC Analysis (GP26) - Button GP21\n");
     printf("- Protocol Analysis - Button GP22\n");
     printf("  * UART RX: GP4\n");
-    printf("  * I2C SCL: GP8, SDA: GP9\n");
-    printf("  * SPI SCK: GP10, MOSI: GP11, MISO: GP12\n");
+    // printf("  * I2C SCL: GP8, SDA: GP9\n");
+    // printf("  * SPI SCK: GP10, MOSI: GP11, MISO: GP12\n");
     printf("Press respective buttons to start/stop capture\n\n");
 }
 

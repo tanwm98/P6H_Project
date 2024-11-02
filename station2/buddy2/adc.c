@@ -94,11 +94,6 @@ void adc_analyzer_init(void) {
     dma_channel_set_irq0_enabled(adc_config.dma_chan, true);
     irq_set_exclusive_handler(DMA_IRQ_0, dma_handler);
     irq_set_enabled(DMA_IRQ_0, true);
-    
-    printf("ADC and DMA initialization complete\n");
-    printf("ADC Analyzer Ready\n");
-    printf("- ADC Input: GP%d\n", adc_config.analog_pin);
-    printf("- Control Button: GP%d\n", adc_config.button_pin);
 }
 
 void adc_start_capture(void) {

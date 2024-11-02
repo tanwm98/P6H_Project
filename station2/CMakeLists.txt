@@ -1,9 +1,6 @@
 add_executable(main2
     main2.c
-    buddy3/signal_generator.c
     buddy3/protocol_analyzer.c
-    buddy1/sd_card.c
-    buddy1/hw_config.c
     buddy2/signal_analyzer.c
     buddy2/adc.c
     buddy2/pwm.c
@@ -23,8 +20,6 @@ target_compile_definitions(main2 PRIVATE
 
 target_link_libraries(main2
     pico_stdlib
-    pico_cyw43_arch_lwip_sys_freertos
-    FreeRTOS-Kernel-Heap4
     hardware_uart 
     hardware_pwm
     hardware_adc

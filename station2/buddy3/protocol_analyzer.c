@@ -32,11 +32,6 @@ void protocol_analyzer_init(void) {
     protocol_metrics.is_capturing = false;
     protocol_metrics.edge_count = 0;
     protocol_metrics.detected_protocol = PROTOCOL_UNKNOWN;
-    
-    printf("Protocol Analyzer Ready\n");
-    printf("- UART RX: GP%d\n", UART_RX_PIN);
-    printf("- I2C SCL: GP%d, SDA: GP%d\n", I2C_SCL_PIN, I2C_SDA_PIN);
-    printf("- SPI SCK: GP%d, MOSI: GP%d, MISO: GP%d\n", SPI_SCK_PIN, SPI_MOSI_PIN, SPI_MISO_PIN);
 }
 
 void handle_protocol_edge(uint gpio, uint32_t events, uint32_t now) {

@@ -86,11 +86,6 @@ void pwm_analyzer_init(void) {
     pwm_metrics.last_rise = 0;
     pwm_metrics.last_fall = 0;
     pwm_metrics.period = 0;
-    
-    printf("PWM Analyzer Ready\n");
-    printf("- PWM Input: GP7\n");
-    printf("- Control Button: GP21\n");
-    printf("Press button to start/stop capture\n");
 }
 
 
@@ -112,4 +107,5 @@ void start_capture(void) {
 
 void stop_capture(void) {
     pwm_metrics.is_capturing = false;
+    printf("Stopping PWM capture...\n");
 }
