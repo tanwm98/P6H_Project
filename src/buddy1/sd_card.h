@@ -8,6 +8,7 @@
 // Function prototypes
 FRESULT initialiseSD(void);
 int readFile(char* filename);
-int writeDataToSD(char* filename, char* content);
+int writeDataToSD(const char* filename, const char* content, bool append);
+int createNewFile(const char* filename);
 
 #endif // SD_CARD_H

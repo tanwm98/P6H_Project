@@ -1,17 +1,15 @@
 add_executable(${NAME}
     main.c
-    buddy3/signal_generator.c
-    buddy3/protocol_analyzer.c
     buddy1/sd_card.c
     buddy1/hw_config.c
-    buddy2/signal_analyzer.c
+    buddy2/digital.c
+    buddy3/signal_generator.c
+    buddy5/wifi.c
 )
-
 
 target_include_directories(${NAME} PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}
     ${CMAKE_CURRENT_LIST_DIR}/..
-    ${CMAKE_CURRENT_LIST_DIR}/../include
 )
 
 target_compile_definitions(${NAME} PRIVATE
@@ -21,8 +19,6 @@ target_compile_definitions(${NAME} PRIVATE
 
 target_link_libraries(${NAME}
     pico_stdlib
-    pico_cyw43_arch_lwip_sys_freertos
-    FreeRTOS-Kernel-Heap4
     hardware_uart 
     hardware_pwm
     hardware_adc
@@ -30,6 +26,8 @@ target_link_libraries(${NAME}
     hardware_i2c
     hardware_gpio
     FatFs_SPI
+    pico_cyw43_arch_lwip_poll  
+    pico_lwip_sntp  
 )
 
 pico_enable_stdio_usb(${NAME} 1)
