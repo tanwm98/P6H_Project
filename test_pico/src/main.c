@@ -4,7 +4,6 @@
 #include "hardware/gpio.h"
 
 #define UART_TX_PIN 0
-#define LED_PIN 25    // Built-in LED for status
 #define PATTERN_REPEAT 50  // Number of times to repeat each pattern
 #define VERIFY_PIN 3  // Pin to verify pulses
 
@@ -17,36 +16,22 @@ const uint8_t test_patterns[] = {
     0xFF   // All ones (tests start/stop bits)
 };
 
-static const uint32_t test_bauds[] = {
-    300    // Start with just 300 baud for initial testing
-};
-
-void indicate_pattern_change(void) {
-    gpio_put(LED_PIN, 1);
-    sleep_ms(100);
-    gpio_put(LED_PIN, 0);
-}
+static const int BAUD_RATE = 115200;
 
 void run_uart_tests(void) {
     printf("\nStarting UART Signal Generator\n");
     printf("Connect UART_TX (GP0) to analyzer input\n");
     
-    // Initialize LED
-    gpio_init(LED_PIN);
-    gpio_set_dir(LED_PIN, GPIO_OUT);
-    
     // Initialize UART
-    uart_init(uart0, 300);  // Start with 300 baud
+    uart_init(uart0, BAUD_RATE);  // Start with 300 baud
     gpio_set_function(UART_TX_PIN, GPIO_FUNC_UART);
     
-    printf("Sending test patterns at 300 baud...\n");
+    printf("Sending test patterns at %d baud\n", BAUD_RATE);
     
     while(1) {
         for (int i = 0; i < sizeof(test_patterns); i++) {
             printf("Sending pattern 0x%02X (%d times)\n", 
                    test_patterns[i], PATTERN_REPEAT);
-            
-            indicate_pattern_change();
             
             // Send pattern multiple times with delay
             for (int j = 0; j < PATTERN_REPEAT; j++) {
