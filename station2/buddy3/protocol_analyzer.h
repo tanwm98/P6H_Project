@@ -58,6 +58,7 @@ const char* get_protocol_name(protocol_type_t type);
 static bool analyze_uart_timing(void);
 static void analyze_captured_data(void);
 
+float get_uart_baud_rate(void);
 #endif
 
 // protocol_analyzer.c
