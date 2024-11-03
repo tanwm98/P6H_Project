@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 
-set(NAME P6H_Project)
+set(NAME test_pico)
 set(PICO_BOARD pico_w CACHE STRING "Board type")
 set(PICO_SDK_PATH "C:/Program Files/Raspberry Pi/Pico SDK v1.5.1/pico-sdk") 
 #change this accordingly to where you installed it
@@ -14,7 +14,6 @@ set(CMAKE_CXX_STANDARD 17)
 
 pico_sdk_init()
 
+
 add_subdirectory(src)
-add_subdirectory(station2)
-add_subdirectory(test_pico)
-add_subdirectory(lib/no-OS-FatFS-SD-SDIO-SPI-RPi-Pico/src)
+add_subdirectory(z_ping)

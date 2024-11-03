@@ -49,7 +49,7 @@
 #define SNTP_UPDATE_DELAY       3600000  // Update every hour (in ms)
 #define SNTP_RETRY_TIMEOUT      3000     // Retry every 3 seconds on failure
 #define SNTP_MAX_SERVERS        2        // Support multiple NTP servers
-#define SNTP_SET_SYSTEM_TIME_US(sec, us) sntp_set_system_time_us(sec, us)
+#define SNTP_SET_SYSTEM_TIME_US(sec, us) 
 
 // OS specific settings
 #define LWIP_PLATFORM_BYTESWAP 0
