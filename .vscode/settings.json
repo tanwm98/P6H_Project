@@ -15,7 +15,8 @@
         "digital.h": "c",
         "uart.h": "c",
         "stdio.h": "c",
-        "gpio.h": "c"
+        "gpio.h": "c",
+        "wifi_dashboard.h": "c"
     },
     "C_Cpp.errorSquiggles": "enabled"
 }

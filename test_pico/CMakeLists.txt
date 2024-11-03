@@ -16,4 +16,3 @@ pico_sdk_init()
 
 
 add_subdirectory(src)
-add_subdirectory(z_ping)

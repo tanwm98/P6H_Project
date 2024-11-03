@@ -152,3 +152,11 @@ const char* get_protocol_name(protocol_type_t type) {
         default:           return "Unknown";
     }
 }
+
+float get_uart_baud_rate(void) {
+    if (protocol_metrics.is_valid && 
+        protocol_metrics.detected_protocol == PROTOCOL_UART) {
+        return (float)protocol_metrics.baud_rate;
+    }
+    return 0.0f;
+}
