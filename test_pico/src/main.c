@@ -16,7 +16,7 @@ const uint8_t test_patterns[] = {
     0xFF   // All ones (tests start/stop bits)
 };
 
-static const int BAUD_RATE = 115200;
+static const int BAUD_RATE = 460800;
 
 void run_uart_tests(void) {
     printf("\nStarting UART Signal Generator\n");

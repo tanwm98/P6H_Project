@@ -5,7 +5,7 @@ static volatile ProtocolMetrics protocol_metrics = {0};
 // Standard UART baud rates
 static const uint32_t STANDARD_BAUDS[] = {
     300, 1200, 2400, 4800, 9600, 19200, 
-    38400, 57600, 74880, 115200,230400, 460800, 921600
+    38400, 57600, 74880, 115200,230400
 };
 
 void protocol_analyzer_init(void) {
@@ -74,7 +74,7 @@ static bool analyze_uart_timing(void) {
     for (int i = 1; i < protocol_metrics.edge_count; i++) {
         uint32_t interval = protocol_metrics.edge_buffer[i].timestamp - 
                            protocol_metrics.edge_buffer[i-1].timestamp;
-        if (interval > 5 && interval < 1000000) {
+        if (interval > 3 && interval < 1000000) {
             if (interval < min_interval) min_interval = interval;
             if (interval > max_interval) max_interval = interval;
         }
@@ -100,8 +100,21 @@ static bool analyze_uart_timing(void) {
     protocol_metrics.error_margin = min_error;
     protocol_metrics.sample_count = protocol_metrics.edge_count;
     
-    return min_error < 5.0f;
+    // Calculate error threshold based on baud rate
+    float error_threshold;
+    if (closest_baud <= 9600) {
+        error_threshold = 5.0f;  // Standard 5% for low baud rates
+    } else if (closest_baud <= 57600) {
+        error_threshold = 10.0f;  // 10% for medium baud rates
+    } else if (closest_baud <= 115200) {
+        error_threshold = 15.0f;  // 15% for high baud rates
+    } else {
+        error_threshold = 20.0f;  // 20% for very high baud rates
+    }
+    
+    return min_error < error_threshold;
 }
+
 
 ProtocolMetrics get_protocol_metrics(void) {
     ProtocolMetrics metrics = protocol_metrics;
