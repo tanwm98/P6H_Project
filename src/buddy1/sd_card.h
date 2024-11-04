@@ -4,6 +4,7 @@
 #define SD_CARD_H
 
 #include "ff.h"
+#include <stdbool.h>
 
 // Function prototypes
 FRESULT initialiseSD(void);
