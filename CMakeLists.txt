@@ -15,6 +15,5 @@ set(CMAKE_CXX_STANDARD 17)
 pico_sdk_init()
 
 add_subdirectory(src)
-add_subdirectory(station2)
 add_subdirectory(test_pico)
 add_subdirectory(lib/no-OS-FatFS-SD-SDIO-SPI-RPi-Pico/src)

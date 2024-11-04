@@ -14,6 +14,7 @@ void sntp_set_system_time_us(uint64_t sec, uint32_t us) {
 }
 
 bool ntp_init(void) {
+    
     printf("Initializing WiFi...\n");
     if (cyw43_arch_init()) {
         printf("Failed to initialize cyw43_arch\n");
@@ -30,6 +31,13 @@ bool ntp_init(void) {
     }
     
     printf("Connected to WiFi\n");
+        struct netif *netif = netif_default;
+            printf("IP Configuration:\n");
+        printf("  IP Address: %s\n", ip4addr_ntoa(netif_ip4_addr(netif)));
+        printf("  Subnet Mask: %s\n", ip4addr_ntoa(netif_ip4_netmask(netif)));
+        printf("  Gateway: %s\n", ip4addr_ntoa(netif_ip4_gw(netif)));
+        printf("  DNS Server: %s\n", ip4addr_ntoa(dns_getserver(0)));
+        printf(" DNS Server: %s\n", ip4addr_ntoa(dns_getserver(1)));
 
     // Initialize SNTP
     sntp_setoperatingmode(SNTP_OPMODE_POLL);
