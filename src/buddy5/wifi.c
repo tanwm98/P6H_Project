@@ -28,9 +28,12 @@ bool ntp_init(void) {
         printf("Failed to connect to WiFi\n");
         return false;
     }
-    
+    struct netif *netif = netif_default;
     printf("Connected to WiFi\n");
-
+    printf("IP Configuration:\n");
+    printf("  IP Address: %s\n", ip4addr_ntoa(netif_ip4_addr(netif)));
+    printf("  Subnet Mask: %s\n", ip4addr_ntoa(netif_ip4_netmask(netif)));
+    printf("  Gateway: %s\n", ip4addr_ntoa(netif_ip4_gw(netif)));
     // Initialize SNTP
     sntp_setoperatingmode(SNTP_OPMODE_POLL);
     sntp_setservername(0, NTP_SERVER);

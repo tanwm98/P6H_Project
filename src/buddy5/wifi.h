@@ -10,8 +10,8 @@
 
 // NTP server settings
 #define NTP_SERVER "pool.ntp.org"
-#define WIFI_SSID "TP-Link_1246"
-#define WIFI_PASSWORD "1234512345"
+#define WIFI_SSID "Ming"
+#define WIFI_PASSWORD "12341234"
 #define NTP_DELTA 2208988800 // seconds between 1 Jan 1900 and 1 Jan 1970
 
 // Function declarations
