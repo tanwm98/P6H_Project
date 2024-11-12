@@ -3,18 +3,24 @@ add_executable(${NAME}
     buddy1/sd_card.c
     buddy1/hw_config.c
     buddy2/digital.c
-    buddy3/signal_generator.c
+    buddy2/adc.c
+    buddy2/pwm.c
+    buddy3/protocol_analyzer.c
+    buddy3/uart.c
+    buddy3/i2c.c
+    buddy3/spi.c
+    buddy4/swd.c
+    buddy5/dhcpserver/dhcpserver.c
+    buddy5/dnsserver/dnsserver.c
     buddy5/wifi.c
+
 )
 
 target_include_directories(${NAME} PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}
     ${CMAKE_CURRENT_LIST_DIR}/..
-)
-
-target_compile_definitions(${NAME} PRIVATE
-    NO_SYS=0
-    LWIP_SOCKET=1
+    ${CMAKE_CURRENT_LIST_DIR}/../..
+    ${CMAKE_CURRENT_LIST_DIR}/../include    
 )
 
 target_link_libraries(${NAME}

@@ -8,8 +8,6 @@ add_executable(station2
     buddy3/i2c.c
     buddy3/spi.c
     buddy4/swd.c
-    buddy5/dhcpserver/dhcpserver.c
-    buddy5/dnsserver/dnsserver.c
     buddy5/wifi_dashboard.c
 
 
@@ -22,11 +20,6 @@ target_include_directories(station2 PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/../.. # for our common lwipopts
     ${PICO_LWIP_CONTRIB_PATH}/apps/ping
     ${CMAKE_CURRENT_LIST_DIR}/../include
-)
-
-target_compile_definitions(station2 PRIVATE
-    NO_SYS=0
-    LWIP_SOCKET=1
 )
 
 target_link_libraries(station2

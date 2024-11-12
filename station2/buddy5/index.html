@@ -1,0 +1,127 @@
+static const char index_html[] = 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Signal Analyzer Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .data-box {
+            background-color: white;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .status {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            padding: 8px 15px;
+            border-radius: 15px;
+            font-size: 14px;
+        }
+        .connected {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .disconnected {
+            background-color: #f44336;
+            color: white;
+        }
+        .connecting {
+            background-color: #ff9800;
+            color: white;
+        }
+        .value {
+            font-weight: bold;
+            color: #2196F3;
+        }
+        h1, h2 {
+            color: #333;
+        }
+        .update-time {
+            font-size: 12px;
+            color: #666;
+            text-align: right;
+        }
+    </style>
+    <script>
+        function connect() {
+            const statusElem = document.getElementById('connection-status');
+            statusElem.textContent = 'Connecting...';
+            statusElem.className = 'status connecting';
+
+            const ws = new WebSocket('ws://' + window.location.host + '/ws');
+            
+            ws.onopen = function() {
+                statusElem.textContent = 'Connected';
+                statusElem.className = 'status connected';
+            };
+
+            ws.onclose = function() {
+                statusElem.textContent = 'Disconnected';
+                statusElem.className = 'status disconnected';
+                // Try to reconnect after 3 seconds
+                setTimeout(connect, 3000);
+            };
+
+            ws.onerror = function(err) {
+                console.error('WebSocket error:', err);
+                statusElem.textContent = 'Error';
+                statusElem.className = 'status disconnected';
+            };
+
+            ws.onmessage = function(event) {
+                try {
+                    const data = JSON.parse(event.data);
+                    
+                    // Update values
+                    document.getElementById('pwm_freq').textContent = data.pwm_freq.toFixed(2);
+                    document.getElementById('pwm_duty').textContent = data.pwm_duty.toFixed(1);
+                    document.getElementById('adc_freq').textContent = data.adc_freq.toFixed(2);
+                    document.getElementById('uart_bps').textContent = Math.round(data.uart_bps).toLocaleString();
+                    
+                    // Update timestamp
+                    document.getElementById('last-update').textContent = 
+                        new Date().toLocaleTimeString();
+                } catch (e) {
+                    console.error('Error parsing message:', e);
+                }
+            };
+        }
+
+        // Start connection when page loads
+        window.onload = connect;
+    </script>
+</head>
+<body>
+    <div id="connection-status" class="status disconnected">Disconnected</div>
+    
+    <h1>Signal Analyzer Dashboard</h1>
+    
+    <div class="data-box">
+        <h2>Signal Analysis</h2>
+        <p>PWM Frequency: <span id="pwm_freq" class="value"><!--#pwmfreq--></span> Hz</p>
+        <p>PWM Duty Cycle: <span id="pwm_duty" class="value"><!--#pwmduty--></span>%</p>
+        <p>Analog Frequency: <span id="adc_freq" class="value"><!--#adcfreq--></span> Hz</p>
+        <p>UART Baud Rate: <span id="uart_bps" class="value"><!--#uartbps--></span> bps</p>
+    </div>
+    
+    <div class="data-box">
+        <h2>Debug Information</h2>
+        <p>IDCODE: <span class="value"><!--#idcode--></span></p>
+    </div>
+    
+    <div class="update-time">
+        Last Update: <span id="last-update">Never</span>
+    </div>
+</body>
+</html>;

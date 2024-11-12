@@ -4,11 +4,10 @@
 
 // Static variables
 static DashboardData current_data = {0};
-static dhcp_server_t dhcp_server;
-static dns_server_t dns_server;
 static struct tcp_pcb *http_pcb = NULL;
 static dashboard_command_callback command_handler = NULL;
 static char response_buffer[MAX_BUFFER_SIZE];
+static bool wifi_connected = false;
 
 // Forward declarations for internal functions
 static err_t http_server_accept(void *arg, struct tcp_pcb *newpcb, err_t err);
@@ -24,43 +23,31 @@ bool init_wifi_dashboard(void) {
         return false;
     }
 
-    printf("Setting up access point '%s'...\n", WIFI_SSID);
-
-    cyw43_arch_enable_ap_mode(WIFI_SSID, WIFI_PASS, CYW43_AUTH_WPA2_AES_PSK);
-
-    // Configure network
-    struct netif *netif = netif_default;
-    ip4_addr_t ip, netmask, gateway;
+    printf("Connecting to WiFi network '%s'...\n", WIFI_SSID);
     
-    printf("Setting up network configuration...\n");
-    IP4_ADDR(&ip, 192, 168, 4, 1);
-    IP4_ADDR(&netmask, 255, 255, 255, 0);
-    IP4_ADDR(&gateway, 192, 168, 4, 1);
+    // Enable station mode
+    cyw43_arch_enable_sta_mode();
     
-    netif_set_addr(netif, &ip, &netmask, &gateway);
+    // Connect to WiFi with retries
+    int attempts = 0;
+    while (attempts < MAX_RETRIES) {
+        if (cyw43_arch_wifi_connect_timeout_ms(WIFI_SSID, WIFI_PASSWORD, CYW43_AUTH_WPA2_AES_PSK, 30000) == 0) {
+            printf("WiFi connected!\n");
+            wifi_connected = true;
+            break;
+        }
+        printf("Connection attempt %d failed. Retrying...\n", attempts + 1);
+        attempts++;
+        sleep_ms(RETRY_DELAY_MS);
+    }
+
+    if (!wifi_connected) {
+        printf("Failed to connect to WiFi after %d attempts\n", MAX_RETRIES);
+        return false;
+    }
 
     // Print network configuration
-    char ip_str[16], netmask_str[16], gateway_str[16];
-    ip4addr_ntoa_r(&ip, ip_str, sizeof(ip_str));
-    ip4addr_ntoa_r(&netmask, netmask_str, sizeof(netmask_str));
-    ip4addr_ntoa_r(&gateway, gateway_str, sizeof(gateway_str));
-    
-    printf("\nNetwork Configuration:\n");
-    printf("IP Address: %s\n", ip_str);
-    printf("Netmask: %s\n", netmask_str);
-    printf("Gateway: %s\n", gateway_str);
-    printf("SSID: %s\n", WIFI_SSID);
-    printf("Password: %s\n", WIFI_PASS);
-
-    // Initialize DHCP server before DNS server
-    printf("Initializing DHCP server...\n");
-    dhcp_server_init(&dhcp_server, &ip, &netmask);
-    printf("DHCP server initialized\n");
-
-    // Initialize DNS server after DHCP
-    printf("Initializing DNS server...\n");
-    dns_server_init(&dns_server, &ip);
-    printf("DNS server initialized\n");
+    print_network_info();
 
     // Setup HTTP server
     printf("Setting up HTTP server...\n");
@@ -85,11 +72,28 @@ bool init_wifi_dashboard(void) {
     tcp_accept(http_pcb, http_server_accept);
     printf("HTTP server listening on port %d\n", HTTP_PORT);
     
-    printf("\nWiFi Dashboard initialization complete!\n");
-    printf("Connect to '%s' network with password '%s'\n", WIFI_SSID, WIFI_PASS);
-    printf("Then navigate to http://%s:%d\n", ip_str, HTTP_PORT);
-    
     return true;
+}
+
+void print_network_info(void) {
+    ip4_addr_t ip = *netif_ip4_addr(netif_default);
+    ip4_addr_t netmask = *netif_ip4_netmask(netif_default);
+    ip4_addr_t gateway = *netif_ip4_gw(netif_default);
+
+    char ip_str[16], netmask_str[16], gateway_str[16];
+    ip4addr_ntoa_r(&ip, ip_str, sizeof(ip_str));
+    ip4addr_ntoa_r(&netmask, netmask_str, sizeof(netmask_str));
+    ip4addr_ntoa_r(&gateway, gateway_str, sizeof(gateway_str));
+    
+    printf("\nNetwork Configuration:\n");
+    printf("IP Address: %s\n", ip_str);
+    printf("Netmask: %s\n", netmask_str);
+    printf("Gateway: %s\n", gateway_str);
+    printf("\nNavigate to http://%s:%d to access the dashboard\n", ip_str, HTTP_PORT);
+}
+
+bool is_wifi_connected(void) {
+    return wifi_connected;
 }
 
 void update_dashboard_data(DashboardData *data) {
@@ -130,7 +134,6 @@ static void update_http_response(char *response, const ip4_addr_t *client_ip) {
             "<div class=\"data-box\">"
                 "<h2>Debug Information</h2>"
                 "<p>IDCODE: 0x%08X</p>"
-                "<p>Device Status: %s</p>"
             "</div>"
         "</body>"
         "</html>",
@@ -138,8 +141,7 @@ static void update_http_response(char *response, const ip4_addr_t *client_ip) {
         current_data.pwm_duty_cycle,
         current_data.analog_frequency,
         current_data.uart_baud_rate,
-        current_data.idcode,
-        current_data.device_halted ? "HALTED" : "RUNNING"
+        current_data.idcode
     );
 }
 
@@ -155,14 +157,6 @@ static err_t http_server_recv(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, e
     }
 
     char *request = (char *)p->payload;
-    
-    // Handle different request types
-    if (strstr(request, "GET /command?cmd=halt") != NULL) {
-        if (command_handler) command_handler("halt");
-    }
-    else if (strstr(request, "GET /command?cmd=resume") != NULL) {
-        if (command_handler) command_handler("resume");
-    }
     
     // Generate and send response
     update_http_response(response_buffer, &tpcb->remote_ip);
@@ -191,6 +185,18 @@ static err_t http_server_sent(void *arg, struct tcp_pcb *tpcb, u16_t len) {
 void handle_dashboard_events(void) {
     // Required for WiFi processing
     cyw43_arch_poll();
+    
+    // Check WiFi connection status
+    if (wifi_connected && !cyw43_wifi_link_status(&cyw43_state, CYW43_ITF_STA)) {
+        printf("WiFi connection lost! Attempting to reconnect...\n");
+        wifi_connected = false;
+        if (cyw43_arch_wifi_connect_timeout_ms(WIFI_SSID, WIFI_PASSWORD, 
+                                             CYW43_AUTH_WPA2_AES_PSK, 30000) == 0) {
+            printf("WiFi reconnected!\n");
+            wifi_connected = true;
+            print_network_info();
+        }
+    }
     
     sleep_ms(1); // Short sleep to prevent tight loop
 }
