@@ -8,7 +8,6 @@
 
 static void display_menu(void);
 static void gpio_callback(uint gpio, uint32_t events);
-static void handle_dashboard_command(const char* cmd);
 static DashboardData dashboard_data = {0};
 
 static void display_menu(void) {
@@ -20,18 +19,6 @@ static void display_menu(void) {
     printf("Press respective buttons to start/stop capture\n\n");
 }
 
-static void handle_dashboard_command(const char* cmd) {
-    if (strcmp(cmd, "halt") == 0) {
-        printf("Received halt command\n");
-        dashboard_data.device_halted = true;
-        //TODO: Add your halt implementation here
-    } 
-    else if (strcmp(cmd, "resume") == 0) {
-        printf("Received resume command\n");
-        dashboard_data.device_halted = false;
-        //TODO: Add your resume implementation here
-    }
-}
 
 // Unified GPIO callback
 static void gpio_callback(uint gpio, uint32_t events) {
@@ -109,10 +96,7 @@ int main() {
     uint32_t idcode = read_idcode();
     printf("IDCODE: 0x%08X\n", idcode);
     dashboard_data.idcode = idcode;
-    
-    // Register dashboard command handler
-    register_dashboard_callback(handle_dashboard_command);
-    
+        
     // Initialize all GPIO interrupts with unified callback
     gpio_set_irq_enabled_with_callback(PWM_PIN, 
         GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, true, &gpio_callback);

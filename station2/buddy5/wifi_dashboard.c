@@ -5,7 +5,6 @@
 // Static variables
 static DashboardData current_data = {0};
 static struct tcp_pcb *http_pcb = NULL;
-static dashboard_command_callback command_handler = NULL;
 static char response_buffer[MAX_BUFFER_SIZE];
 static bool wifi_connected = false;
 
@@ -98,10 +97,6 @@ bool is_wifi_connected(void) {
 
 void update_dashboard_data(DashboardData *data) {
     memcpy(&current_data, data, sizeof(DashboardData));
-}
-
-void register_dashboard_callback(dashboard_command_callback callback) {
-    command_handler = callback;
 }
 
 static void update_http_response(char *response, const ip4_addr_t *client_ip) {
