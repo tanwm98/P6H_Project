@@ -1,5 +1,10 @@
 #include "wifi_dashboard.h"
 #include "ntp.h"
+#include "buddy2/adc.h"
+#include "buddy2/pwm.h"
+#include "buddy3/protocol_analyzer.h"
+#include "buddy4/swd.h"
+
 #define MAX_BUFFER_SIZE 2048
 
 // Static variables
@@ -16,7 +21,6 @@ static void update_http_response(char *response, const ip4_addr_t *client_ip);
 
 bool init_wifi_dashboard(void) {
     printf("Starting WiFi initialization...\n");
-    
     if (cyw43_arch_init()) {
         printf("CYW43 initialization failed!\n");
         return false;
@@ -33,6 +37,7 @@ bool init_wifi_dashboard(void) {
         if (cyw43_arch_wifi_connect_timeout_ms(WIFI_SSID, WIFI_PASSWORD, CYW43_AUTH_WPA2_AES_PSK, 30000) == 0) {
             printf("WiFi connected!\n");
             wifi_connected = true;
+            print_network_info();  // Add this here
             break;
         }
         printf("Connection attempt %d failed. Retrying...\n", attempts + 1);
@@ -105,33 +110,58 @@ static void update_http_response(char *response, const ip4_addr_t *client_ip) {
         "<head>"
             "<meta charset=\"UTF-8\">"
             "<title>Signal Analyzer Dashboard</title>"
-            "<meta http-equiv=\"refresh\" content=\"1\">"
             "<style>"
-                ".data-box { border: 1px solid #ccc; padding: 10px; margin: 10px; }"
-                ".control-box { margin: 20px 0; }"
+                ".data-box{border:1px solid #ccc;padding:10px;margin:10px}"
+                ".btn{padding:8px;margin:5px;cursor:pointer}"
+                ".control-btn{background:#f0f0f0;border:1px solid #ccc}"
+                ".active{background:#fcc}"
+                ".idcode-btn{background:#4CAF50;color:white;border:none}"
+                ".measurement{color:#666}"
             "</style>"
+            "%s"  // Conditional auto-refresh meta tag
         "</head>"
         "<body>"
             "<h1>Signal Analyzer Dashboard</h1>"
             
             "<div class=\"data-box\">"
-                "<h2>Signal Analysis</h2>"
-                "<p>PWM Frequency: %.2f Hz</p>"
-                "<p>PWM Duty Cycle: %.1f%%</p>"
-                "<p>Analog Frequency: %.2f Hz</p>"
-                "<p>UART Baud Rate: %.0f bps</p>"
+                "<h2>Controls</h2>"
+                "<form method=\"POST\" action=\"/button\">"
+                    "<button class=\"btn control-btn %s\" name=\"btn\" value=\"1\">PWM %s</button>"
+                    "<div class=\"measurement\">Frequency: %.2f Hz | Duty Cycle: %.1f%%</div>"
+                    
+                    "<button class=\"btn control-btn %s\" name=\"btn\" value=\"2\">ADC %s</button>"
+                    "<div class=\"measurement\">Frequency: %.2f Hz</div>"
+                    
+                    "<button class=\"btn control-btn %s\" name=\"btn\" value=\"3\">Protocol %s</button>"
+                    "<div class=\"measurement\">Baud Rate: %.0f bps</div>"
+                "</form>"
             "</div>"
 
             "<div class=\"data-box\">"
                 "<h2>Debug Information</h2>"
-                "<p>IDCODE: 0x%08X</p>"
+                "<form method=\"POST\" action=\"/button\">"
+                    "<button class=\"btn idcode-btn\" name=\"btn\" value=\"4\">Get IDCODE</button>"
+                "</form>"
+                "<div class=\"measurement\">IDCODE: 0x%08X</div>"
             "</div>"
         "</body>"
         "</html>",
+        // Add auto-refresh meta tag only if any capture is active
+        (current_data.pwm_active || current_data.adc_active || current_data.protocol_active) ? 
+            "<meta http-equiv=\"refresh\" content=\"1\">" : "",
+        current_data.pwm_active ? "active" : "",
+        current_data.pwm_active ? "Stop" : "Start",
         current_data.pwm_frequency,
         current_data.pwm_duty_cycle,
+        
+        current_data.adc_active ? "active" : "",
+        current_data.adc_active ? "Stop" : "Start",
         current_data.analog_frequency,
+        
+        current_data.protocol_active ? "active" : "",
+        current_data.protocol_active ? "Stop" : "Start",
         current_data.uart_baud_rate,
+        
         current_data.idcode
     );
 }
@@ -148,6 +178,16 @@ static err_t http_server_recv(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, e
     }
 
     char *request = (char *)p->payload;
+    
+    // Simple POST handling
+    if (strncmp(request, "POST /button", 11) == 0) {
+        // Find the button value
+        char *btn_pos = strstr(request, "btn=");
+        if (btn_pos) {
+            int button_val = btn_pos[4] - '0';
+            handle_dashboard_button((DashboardButton)button_val);
+        }
+    }
     
     // Generate and send response
     update_http_response(response_buffer, &tpcb->remote_ip);
@@ -190,4 +230,61 @@ void handle_dashboard_events(void) {
     }
     
     sleep_ms(1); // Short sleep to prevent tight loop
+}
+
+void handle_dashboard_button(DashboardButton button) {
+    // Always update relevant data based on which button was pressed
+    switch(button) {
+        case BUTTON_PWM:
+            if (!is_capturing()) {
+                start_capture();
+                current_data.pwm_active = true;
+            } else {
+                stop_capture();
+                current_data.pwm_active = false;
+            }
+            // Update PWM metrics immediately after toggle
+            if (current_data.pwm_active) {
+                PWMMetrics pwm = get_pwm_metrics();
+                current_data.pwm_frequency = pwm.frequency;
+                current_data.pwm_duty_cycle = pwm.duty_cycle;
+            } else {
+                current_data.pwm_frequency = 0;
+                current_data.pwm_duty_cycle = 0;
+            }
+            break;
+            
+        case BUTTON_ADC:
+            if (!is_adc_capturing()) {
+                adc_start_capture();
+                current_data.adc_active = true;
+                
+            } else {
+                adc_stop_capture();
+                current_data.analog_frequency = 0;
+                current_data.adc_active = false;
+            }
+            break;
+        case BUTTON_PROTOCOL:
+            if (!is_protocol_capturing()) {
+                start_protocol_capture();
+                current_data.protocol_active = true;
+            } else {
+                stop_protocol_capture();
+                current_data.protocol_active = false;
+            }
+            // Update protocol metrics immediately after toggle
+            if (current_data.protocol_active) {
+                current_data.uart_baud_rate = get_uart_baud_rate();
+            } else {
+                current_data.uart_baud_rate = 0;
+            }
+            break;
+            
+        case BUTTON_IDCODE:
+            // Get fresh IDCODE reading when button is pressed
+            swd_init();  // Re-initialize SWD
+            current_data.idcode = read_idcode();
+            break;
+    }
 }

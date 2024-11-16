@@ -45,5 +45,14 @@ void handle_dashboard_events(void);
 bool is_wifi_connected(void);
 void print_network_info(void);
 
+#define HTTP_POST_BUFFER_SIZE 128
+
+typedef enum {
+    BUTTON_PWM = 1,
+    BUTTON_ADC = 2,
+    BUTTON_PROTOCOL = 3,
+    BUTTON_IDCODE = 4
+} DashboardButton;
+void handle_dashboard_button(DashboardButton button);
 
 #endif // WIFI_DASHBOARD_H
