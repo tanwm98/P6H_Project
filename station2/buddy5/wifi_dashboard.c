@@ -1,6 +1,6 @@
 #include "wifi_dashboard.h"
-
-#define MAX_BUFFER_SIZE 1024
+#include "ntp.h"
+#define MAX_BUFFER_SIZE 2048
 
 // Static variables
 static DashboardData current_data = {0};
@@ -44,10 +44,6 @@ bool init_wifi_dashboard(void) {
         printf("Failed to connect to WiFi after %d attempts\n", MAX_RETRIES);
         return false;
     }
-
-    // Print network configuration
-    print_network_info();
-
     // Setup HTTP server
     printf("Setting up HTTP server...\n");
     http_pcb = tcp_new();
@@ -70,7 +66,7 @@ bool init_wifi_dashboard(void) {
     
     tcp_accept(http_pcb, http_server_accept);
     printf("HTTP server listening on port %d\n", HTTP_PORT);
-    
+    ntp_init();
     return true;
 }
 

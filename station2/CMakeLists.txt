@@ -8,8 +8,8 @@ add_executable(station2
     buddy3/i2c.c
     buddy3/spi.c
     buddy4/swd.c
+    buddy5/ntp.c
     buddy5/wifi_dashboard.c
-
 
     ${PICO_LWIP_CONTRIB_PATH}/apps/ping/ping.c
 )
@@ -32,8 +32,8 @@ target_link_libraries(station2
     hardware_gpio
     FatFs_SPI
     pico_cyw43_arch_lwip_poll   
-    pico_stdlib                    # Standard library for Pico SDK
     pico_lwip_iperf                # lwIP library
+    pico_lwip_sntp
 )
 
 pico_enable_stdio_usb(station2 1)

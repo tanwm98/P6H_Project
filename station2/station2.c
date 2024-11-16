@@ -123,7 +123,6 @@ int main() {
 
     if (is_wifi_connected()) {
         printf("\nWiFi connected successfully!\n");
-        print_network_info();
     } else {
         printf("\nWiFi connection timed out. Continuing without network connectivity.\n");
     }
