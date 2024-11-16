@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include "pico/stdlib.h"
+#include "buddy1/sd_card.h"
 #include "buddy2/adc.h"
 #include "buddy2/pwm.h"
 #include "buddy3/protocol_analyzer.h"
@@ -35,6 +36,11 @@ int main() {
     // Initialize WiFi first
     if (!init_wifi_dashboard()) {
         printf("Failed to initialize WiFi dashboard. System will continue without network connectivity.\n");
+    }
+    if (initialiseSD() != FR_OK) {
+        printf("Failed to initialize SD card. Data logging will be disabled.\n");
+    } else {
+        printf("SD card initialized successfully.\n");
     }
 
     // Initialize all GPIO interrupts with unified callback

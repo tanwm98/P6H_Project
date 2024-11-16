@@ -2,19 +2,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-// Private ADC configuration structure
-typedef struct {
-    uint16_t* capture_buf;
-    uint capture_depth;
-    uint button_pin;
-    uint analog_pin;
-    bool capturing;
-    bool transfer_complete;
-    float last_frequency;
-    int dma_chan;
-    bool continuous_mode;
-} ADC_Config;
-
 // Private global state
 static ADC_Config adc_config = {
     .capture_buf = NULL,
@@ -30,8 +17,7 @@ static ADC_Config adc_config = {
 
 static void dma_handler(void) {
     if (adc_config.dma_chan < 0) return;
-    
-    dma_hw->ints0 = 1u << adc_config.dma_chan;
+    dma_hw->ints1 = 1u << adc_config.dma_chan;
     
     if (adc_config.continuous_mode) {
         adc_config.transfer_complete = true;
@@ -91,9 +77,10 @@ void adc_analyzer_init(void) {
     }
     
     // Configure DMA interrupts
-    dma_channel_set_irq0_enabled(adc_config.dma_chan, true);
-    irq_set_exclusive_handler(DMA_IRQ_0, dma_handler);
-    irq_set_enabled(DMA_IRQ_0, true);
+    dma_hw->inte1 = 1u << adc_config.dma_chan;
+    dma_channel_set_irq1_enabled(adc_config.dma_chan, true);
+    irq_set_exclusive_handler(DMA_IRQ_1, dma_handler);
+    irq_set_enabled(DMA_IRQ_1, true);
 }
 
 void adc_start_capture(void) {

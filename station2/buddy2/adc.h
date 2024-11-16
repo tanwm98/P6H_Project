@@ -10,6 +10,20 @@
 #define ADC_BUTTON_PIN 21
 #define DEFAULT_ANALOG_PIN 26
 
+
+// Private ADC configuration structure
+typedef struct {
+    uint16_t* capture_buf;
+    uint capture_depth;
+    uint button_pin;
+    uint analog_pin;
+    bool capturing;
+    bool transfer_complete;
+    float last_frequency;
+    int dma_chan;
+    bool continuous_mode;
+} ADC_Config;
+
 // Public function declarations
 void adc_analyzer_init(void);
 void adc_cleanup(void);

@@ -1,7 +1,9 @@
 add_executable(station2
+    buddy1/sd_card.c
+    buddy1/hw_config.c
     station2.c
-    buddy2/signal_analyzer.c
     buddy2/adc.c
+    buddy2/digital.c
     buddy2/pwm.c
     buddy3/protocol_analyzer.c
     buddy3/uart.c
@@ -37,6 +39,6 @@ target_link_libraries(station2
 )
 
 pico_enable_stdio_usb(station2 1)
-pico_enable_stdio_uart(station2 0)
+pico_enable_stdio_uart(station2 1)
 
 pico_add_extra_outputs(station2)
