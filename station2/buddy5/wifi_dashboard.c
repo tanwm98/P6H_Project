@@ -1,9 +1,4 @@
 #include "wifi_dashboard.h"
-#include "ntp.h"
-#include "buddy2/adc.h"
-#include "buddy2/pwm.h"
-#include "buddy3/protocol_analyzer.h"
-#include "buddy4/swd.h"
 
 #define MAX_BUFFER_SIZE 2048
 
@@ -19,6 +14,61 @@ static err_t http_server_recv(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, e
 static err_t http_server_sent(void *arg, struct tcp_pcb *tpcb, u16_t len);
 static void update_http_response(char *response, const ip4_addr_t *client_ip);
 
+// Add this new helper function to check digital capture status:
+static void update_digital_capture_status(DashboardData *data) {
+    if (data->digital_active) {
+        uint8_t count;
+        const Transition* transitions = get_captured_transitions(&count);
+        
+        if (count > 0) {
+            data->digital_transition_count = count;
+            data->last_state = transitions[count-1].state;
+            data->last_transition_time = transitions[count-1].time;
+        }
+        
+        // Check if capture should be stopped
+        if (is_capture_complete()) {
+            data->digital_active = false;
+            printf("Digital capture auto-stopped. Captured %d transitions\n", count);
+        }
+    }
+}
+
+
+typedef struct {
+    const char *data;
+    uint32_t len;
+    uint32_t sent;
+} TCPSendState;
+
+static TCPSendState send_state;
+static err_t tcp_server_sent_callback(void *arg, struct tcp_pcb *tpcb, u16_t len);
+static err_t tcp_server_sent_callback(void *arg, struct tcp_pcb *tpcb, u16_t len) {
+    if (send_state.sent >= send_state.len) {
+        // All data sent, close connection
+        tcp_close(tpcb);
+        return ERR_OK;
+    }
+
+    // Calculate remaining data and next chunk size
+    uint32_t remaining = send_state.len - send_state.sent;
+    uint16_t chunk_size = MIN(1400, remaining); // 1400 to ensure we're under MTU with headers
+
+    // Send next chunk
+    const char *chunk_start = send_state.data + send_state.sent;
+    err_t err = tcp_write(tpcb, chunk_start, chunk_size, 
+                         remaining > chunk_size ? TCP_WRITE_FLAG_MORE : 0);
+    
+    if (err == ERR_OK) {
+        send_state.sent += chunk_size;
+        tcp_output(tpcb);
+    } else {
+        printf("Failed to write chunk: %d\n", err);
+        tcp_close(tpcb);
+    }
+
+    return ERR_OK;
+}
 bool init_wifi_dashboard(void) {
     printf("Starting WiFi initialization...\n");
     if (cyw43_arch_init()) {
@@ -68,7 +118,12 @@ bool init_wifi_dashboard(void) {
         printf("Failed to start HTTP listener!\n");
         return false;
     }
+        // Configure PCB
+    tcp_nagle_disable(http_pcb); // Disable Nagle's algorithm
+    ip_set_option(http_pcb, SOF_KEEPALIVE);
     
+    // Set TCP buffer sizes
+    tcp_sndbuf(http_pcb);
     tcp_accept(http_pcb, http_server_accept);
     printf("HTTP server listening on port %d\n", HTTP_PORT);
     ntp_init();
@@ -87,14 +142,17 @@ bool is_wifi_connected(void) {
 }
 
 void update_dashboard_data(DashboardData *data) {
+    update_digital_capture_status(data);
     memcpy(&current_data, data, sizeof(DashboardData));
 }
 
 static void update_http_response(char *response, const ip4_addr_t *client_ip) {
-    char client_ip_str[16];
-    ip4addr_ntoa_r(client_ip, client_ip_str, sizeof(client_ip_str));
+    // Only refresh for PWM, ADC, and protocol analysis - NOT for digital capture
+    const char *refresh_meta = (current_data.pwm_active || current_data.adc_active || 
+                              current_data.protocol_active) ? 
+        "<meta http-equiv=\"refresh\" content=\"1\">" : "";
 
-    snprintf(response, MAX_BUFFER_SIZE,
+    int bytes = snprintf(response, MAX_BUFFER_SIZE,
         "<!DOCTYPE html>"
         "<html lang=\"en\">"
         "<head>"
@@ -107,8 +165,9 @@ static void update_http_response(char *response, const ip4_addr_t *client_ip) {
                 ".active{background:#fcc}"
                 ".idcode-btn{background:#4CAF50;color:white;border:none}"
                 ".measurement{color:#666}"
+                ".replay-btn{background:#007bff;color:white;border:none;margin-left:10px}"
             "</style>"
-            "%s"  // Conditional auto-refresh meta tag
+            "%s"  // Refresh meta tag
         "</head>"
         "<body>"
             "<h1>Signal Analyzer Dashboard</h1>"
@@ -124,6 +183,11 @@ static void update_http_response(char *response, const ip4_addr_t *client_ip) {
                     
                     "<button class=\"btn control-btn %s\" name=\"btn\" value=\"3\">Protocol %s</button>"
                     "<div class=\"measurement\">Baud Rate: %.0f bps</div>"
+
+                    "<button class=\"btn control-btn %s\" name=\"btn\" value=\"5\">Digital Capture %s</button>"
+                    "<button class=\"btn replay-btn\" name=\"btn\" value=\"6\" %s>Replay on GP3</button>"
+                    "<div class=\"measurement\">Transitions: %d | Last State: %s | Last Time: %lu μs</div>"
+                    "<div class=\"measurement\">%s</div>"
                 "</form>"
             "</div>"
 
@@ -136,9 +200,7 @@ static void update_http_response(char *response, const ip4_addr_t *client_ip) {
             "</div>"
         "</body>"
         "</html>",
-        // Add auto-refresh meta tag only if any capture is active
-        (current_data.pwm_active || current_data.adc_active || current_data.protocol_active) ? 
-            "<meta http-equiv=\"refresh\" content=\"1\">" : "",
+        refresh_meta,  // Only refreshes for non-digital captures
         current_data.pwm_active ? "active" : "",
         current_data.pwm_active ? "Stop" : "Start",
         current_data.pwm_frequency,
@@ -152,8 +214,14 @@ static void update_http_response(char *response, const ip4_addr_t *client_ip) {
         current_data.protocol_active ? "Stop" : "Start",
         current_data.uart_baud_rate,
         
+        current_data.digital_active ? "active" : "",
+        current_data.digital_active ? "Stop" : "Start",
+        current_data.digital_active ? "disabled" : "",  // Disable replay during capture
+        current_data.digital_active ? "Press button again to stop capture" : 
+            (current_data.digital_transition_count > 0 ? "Ready to replay" : "Ready to capture"),
         current_data.idcode
     );
+    printf("HTTP Response: %d bytes\n", bytes);
 }
 
 static err_t http_server_accept(void *arg, struct tcp_pcb *newpcb, err_t err) {
@@ -167,33 +235,54 @@ static err_t http_server_recv(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, e
         return ERR_OK;
     }
 
+    // Handle POST request
     char *request = (char *)p->payload;
-    
-    // Simple POST handling
     if (strncmp(request, "POST /button", 11) == 0) {
-        // Find the button value
         char *btn_pos = strstr(request, "btn=");
         if (btn_pos) {
             int button_val = btn_pos[4] - '0';
             handle_dashboard_button((DashboardButton)button_val);
         }
     }
-    
-    // Generate and send response
+
+    // Generate complete response first
     update_http_response(response_buffer, &tpcb->remote_ip);
+    
+    // Setup header
     char header[128];
     snprintf(header, sizeof(header),
         "HTTP/1.1 200 OK\r\n"
         "Content-Type: text/html\r\n"
         "Content-Length: %d\r\n"
         "Connection: close\r\n"
-        "\r\n", (int)strlen(response_buffer));
-    
-    tcp_write(tpcb, header, strlen(header), TCP_WRITE_FLAG_COPY);
-    tcp_write(tpcb, response_buffer, strlen(response_buffer), TCP_WRITE_FLAG_COPY);
+        "\r\n", strlen(response_buffer));
+
+    // Initialize send state
+    send_state.data = response_buffer;
+    send_state.len = strlen(response_buffer);
+    send_state.sent = 0;
+
+    // Register sent callback
+    tcp_sent(tpcb, tcp_server_sent_callback);
+
+    // Send header first
+    err_t write_err = tcp_write(tpcb, header, strlen(header), TCP_WRITE_FLAG_MORE);
+    if (write_err != ERR_OK) {
+        printf("Header write failed: %d\n", write_err);
+        pbuf_free(p);
+        return write_err;
+    }
+
+    // Start sending the response body
+    uint16_t chunk_size = MIN(1400, send_state.len); // Leave room for TCP/IP headers
+    write_err = tcp_write(tpcb, send_state.data, chunk_size, TCP_WRITE_FLAG_MORE);
+    if (write_err != ERR_OK) {
+        printf("Initial body write failed: %d\n", write_err);
+    } else {
+        send_state.sent = chunk_size;
+    }
+
     tcp_output(tpcb);
-    tcp_sent(tpcb, http_server_sent);
-    
     pbuf_free(p);
     return ERR_OK;
 }
@@ -275,6 +364,43 @@ void handle_dashboard_button(DashboardButton button) {
             // Get fresh IDCODE reading when button is pressed
             swd_init();  // Re-initialize SWD
             current_data.idcode = read_idcode();
+            break;
+
+        case BUTTON_DIGITAL:
+            if (!current_data.digital_active) {
+                // Starting new capture
+                digital_init();
+                start_pulse_capture();
+                current_data.digital_active = true;
+                current_data.digital_transition_count = 0;
+                current_data.last_transition_time = 0;
+                current_data.last_state = false;
+                printf("Starting new digital capture (auto-save enabled)...\n");
+            } else {
+                // Manual stop requested
+                current_data.digital_active = false;
+                // Get final state
+                uint8_t count;
+                const Transition* transitions = get_captured_transitions(&count);
+                if (count > 0) {
+                    current_data.digital_transition_count = count;
+                    current_data.last_state = transitions[count-1].state;
+                    current_data.last_transition_time = transitions[count-1].time;
+                    save_pulses_to_file(PULSE_FILE); // Auto-save on manual stop
+                }
+                printf("Digital capture stopped manually. Captured %d transitions\n", 
+                       current_data.digital_transition_count);
+            }
+            break;
+            
+        case BUTTON_REPLAY:
+            if (!current_data.digital_active && current_data.digital_transition_count > 0) {
+                printf("Starting replay on GP3...\n");
+                replay_pulses(1);  // Replay once
+            } else {
+                printf("Cannot replay: %s\n", 
+                    current_data.digital_active ? "Capture still active" : "No transitions captured");
+            }
             break;
     }
 }

@@ -2,6 +2,7 @@
 #include "pico/stdlib.h"
 #include "buddy1/sd_card.h"
 #include "buddy2/adc.h"
+#include "buddy2/digital.h"
 #include "buddy2/pwm.h"
 #include "buddy3/protocol_analyzer.h"
 #include "buddy4/swd.h"
@@ -9,7 +10,6 @@
 
 static void gpio_callback(uint gpio, uint32_t events);
 static DashboardData dashboard_data = {0};
-
 
 // Unified GPIO callback
 static void gpio_callback(uint gpio, uint32_t events) {
@@ -23,6 +23,9 @@ static void gpio_callback(uint gpio, uint32_t events) {
     // Protocol Analysis Signals
     if ((gpio == UART_RX_PIN) && is_protocol_capturing()) {
         handle_protocol_edge(gpio, events, now);
+    }
+    if (gpio == DIGITAL_INPUT_PIN) {
+        gpio_callback_digital(gpio, events); 
     }
 }
 
@@ -43,11 +46,17 @@ int main() {
         printf("SD card initialized successfully.\n");
     }
 
-    // Initialize all GPIO interrupts with unified callback
-    gpio_set_irq_enabled_with_callback(PWM_PIN, 
+    // Set up GPIO interrupts with unified callback AFTER all initializations
+    gpio_set_irq_enabled_with_callback(DIGITAL_INPUT_PIN, 
         GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, true, &gpio_callback);
-
+    
+    gpio_set_irq_enabled(PWM_PIN, 
+        GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, true);
+    
+    gpio_set_irq_enabled(UART_RX_PIN, 
+        GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, true);
     // Initialize all modules
+    digital_init();
     adc_analyzer_init();
     pwm_analyzer_init();
     protocol_analyzer_init();
@@ -84,8 +93,6 @@ int main() {
                     dashboard_data.pwm_active = false;
                 }
             }
-            
-            
             if (is_adc_capturing()) {
                 if (is_transfer_complete()) {
                     clear_transfer_complete();
@@ -105,8 +112,24 @@ int main() {
                     dashboard_data.protocol_active = true;  // Make sure to update active state
                 }
             }
-            
-            // Always update dashboard to reflect current state
+            if (dashboard_data.digital_active) {
+                uint8_t count;
+                const Transition* transitions = get_captured_transitions(&count);
+                
+                if (count > 0) {
+                    dashboard_data.digital_transition_count = count;
+                    dashboard_data.last_state = transitions[count-1].state;
+                    dashboard_data.last_transition_time = transitions[count-1].time;
+                }
+                
+                // Just check completion through the public API
+                if (is_capture_complete()) {
+                    dashboard_data.digital_active = false;
+                    printf("Digital capture stopped - captured %d transitions\n", count);
+                }
+            }
+                        
+            // Update dashboard
             update_dashboard_data(&dashboard_data);
         }
         

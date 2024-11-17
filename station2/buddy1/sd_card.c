@@ -220,40 +220,70 @@ int writeDataToSD(const char* filename, const char* content, bool append) {
     FRESULT fr;
     BYTE mode;
 
+    printf("\nwriteDataToSD debug:\n");
+    printf("- Filename: %s\n", filename);
+    printf("- Mode: %s\n", append ? "append" : "create/overwrite");
+    printf("- Content length: %d bytes\n", strlen(content));
+
     // Set mode based on append flag
     if (append) {
         mode = FA_WRITE | FA_OPEN_APPEND;
+        printf("- Using FA_WRITE | FA_OPEN_APPEND\n");
     } else {
         mode = FA_WRITE | FA_OPEN_ALWAYS;
-        // For non-append mode, need to handle existing file
-        fr = f_open(&file, filename, mode);
-        if (fr == FR_OK) {
-            // If opening succeeded and we're not appending, truncate the file
-            f_truncate(&file);
-            // Reset the file pointer to the start
-            f_lseek(&file, 0);
-            f_close(&file);
-        }
+        printf("- Using FA_WRITE | FA_OPEN_ALWAYS\n");
     }
+
+    // Try to verify SD card status before opening
+    sd_card_t *pSD = sd_get_by_num(0);
+    if (pSD == NULL) {
+        printf("- Error: SD card not found!\n");
+        return 0;
+    }
+    printf("- SD card found\n");
 
     // Now open with the appropriate mode
     fr = f_open(&file, filename, mode);
     if (fr != FR_OK) {
-        printf("f_open error: %d\n", (int)fr);
+        printf("- f_open error: %d\n", (int)fr);
+        printf("  FR_NO_FILE = 1\n");
+        printf("  FR_NO_PATH = 3\n");
+        printf("  FR_INVALID_NAME = 6\n");
+        printf("  FR_DENIED = 7\n");
+        printf("  FR_EXIST = 8\n");
+        printf("  FR_DISK_ERR = 1\n");
         return 0;
     }
+    printf("- File opened successfully\n");
+
+    // For non-append mode, seek to start
+    if (!append) {
+        if (f_lseek(&file, 0) != FR_OK) {
+            printf("- Seek error\n");
+            f_close(&file);
+            return 0;
+        }
+        printf("- Seek to start successful\n");
+    }
+
     // Write the content to the file
-    if (f_printf(&file, "%s", content) < 0) {
-        printf("f_printf failed\n");
+    UINT bw;
+    FRESULT write_fr = f_write(&file, content, strlen(content), &bw);
+    if (write_fr != FR_OK || bw != strlen(content)) {
+        printf("- Write error: fr=%d, written=%u of %u\n", 
+               (int)write_fr, bw, strlen(content));
         f_close(&file);
         return 0;
     }
+    printf("- Wrote %u bytes successfully\n", bw);
 
     // Close the file after writing
     fr = f_close(&file);
     if (fr != FR_OK) {
-        printf("f_close error: %d\n", (int)fr);
+        printf("- Close error: %d\n", (int)fr);
         return 0;
     }
+    printf("- File closed successfully\n");
+    printf("Write operation complete\n\n");
     return 1;
 }

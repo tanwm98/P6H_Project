@@ -5,6 +5,8 @@
 
 static PulseCapture capture = {0};
 static void gpio_callback(uint gpio, uint32_t events);
+static uint32_t last_transition_time = 0;
+#define CAPTURE_TIMEOUT_US 5000000  // 5 seconds in microseconds
 
 void digital_init(void) {
     // Initialize input pin
@@ -17,17 +19,15 @@ void digital_init(void) {
     gpio_set_dir(DIGITAL_OUTPUT_PIN, GPIO_OUT);
     gpio_put(DIGITAL_OUTPUT_PIN, 0);    // Start with output low
 
-    // Setup GPIO interrupt for input pin
-    gpio_set_irq_enabled_with_callback(DIGITAL_INPUT_PIN, 
-        GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, 
-        true, 
-        &gpio_callback);
+    // Make sure the callback struct is zeroed
+    memset(&capture, 0, sizeof(capture));
+    last_transition_time = 0;
 
     printf("Digital pulse capture initialized on GP%d\n", DIGITAL_INPUT_PIN);
     printf("Digital pulse replay configured on GP%d\n", DIGITAL_OUTPUT_PIN);
 }
 
-static void gpio_callback(uint gpio, uint32_t events) {
+void gpio_callback_digital(uint gpio, uint32_t events) {
     if (gpio != DIGITAL_INPUT_PIN || !capture.capturing) return;
 
     uint32_t current_time = time_us_32();
@@ -41,6 +41,7 @@ static void gpio_callback(uint gpio, uint32_t events) {
             capture.transitions[capture.transition_count].state = is_rising;
             capture.transition_count++;
             capture.expecting_high = !capture.expecting_high;
+            last_transition_time = current_time;
             
             // If this isn't the first transition, calculate and print interval
             if (capture.transition_count > 1) {
@@ -60,6 +61,7 @@ static void gpio_callback(uint gpio, uint32_t events) {
             
             if (capture.transition_count >= MAX_TRANSITIONS) {
                 capture.capturing = false;
+                save_pulses_to_file(PULSE_FILE);  // Save to SD card here
                 printf("Capture complete: %d transitions captured\n", capture.transition_count);
             }
         }
@@ -67,19 +69,55 @@ static void gpio_callback(uint gpio, uint32_t events) {
 }
 
 void start_pulse_capture(void) {
-    // Reset capture state
-    memset(&capture, 0, sizeof(capture));
-    capture.capturing = true;
-    capture.start_time = time_us_32();
-    capture.expecting_high = true;  // Start expecting a rising edge
-    printf("Starting pulse capture, waiting for rising edge...\n");
+    if (!capture.capturing) {  // Only reset if not already capturing
+        // Reset capture state
+        memset(&capture, 0, sizeof(capture));
+        capture.capturing = true;
+        capture.start_time = time_us_32();
+        last_transition_time = capture.start_time;
+        capture.expecting_high = true;
+        
+        printf("Starting pulse capture at time %lu, waiting for rising edge...\n", 
+               capture.start_time);
+    }
 }
+
+bool should_stop_capture(void) {
+    uint32_t current_time = time_us_32();
+    // Stop if max transitions reached or timeout occurred
+    if ((capture.transition_count >= MAX_TRANSITIONS) ||
+        (current_time - last_transition_time > CAPTURE_TIMEOUT_US)) {
+        
+        if (capture.capturing) {
+            capture.capturing = false;
+            save_pulses_to_file(PULSE_FILE);
+        }
+        return true;
+    }
+    return false;
+}
+
 
 bool is_capture_complete(void) {
-    return !capture.capturing && capture.transition_count == MAX_TRANSITIONS;
+    if (!capture.capturing) return true;
+    
+    uint32_t current_time = time_us_32();
+    // Check timeout only
+    if (current_time - last_transition_time > CAPTURE_TIMEOUT_US) {
+        capture.capturing = false;
+        save_pulses_to_file(PULSE_FILE);
+        return true;
+    }
+    return false;
 }
 
+
 const Transition* get_captured_transitions(uint8_t* count) {
+    // Check for timeout
+    if (capture.capturing && should_stop_capture()) {
+        capture.capturing = false;
+    }
+    
     if (count) {
         *count = capture.transition_count;
     }
@@ -91,6 +129,9 @@ void replay_pulses(uint8_t num_times) {
         printf("No transitions to replay\n");
         return;
     }
+
+    // Ensure we're not capturing before replaying
+    capture.capturing = false;
 
     printf("Replaying %d transitions %d times...\n", capture.transition_count, num_times);
     
@@ -124,15 +165,12 @@ void replay_pulses(uint8_t num_times) {
             
             // Set output and record actual time
             gpio_put(DIGITAL_OUTPUT_PIN, capture.transitions[i].state);
-            uint32_t current_time = time_us_32();
-            uint32_t actual_interval = current_time - last_transition_time;
-            last_transition_time = current_time;
+            last_transition_time = time_us_32();
             
-            printf("Replay transition %2d: %4s at %lu us (interval: %lu us)\n",
+            printf("Replay transition %2d: %4s at %lu us\n",
                    i + 1,
                    capture.transitions[i].state ? "HIGH" : "LOW",
-                   current_time - start_time,
-                   actual_interval);
+                   last_transition_time - start_time);
         }
         
         printf("Replay %d complete\n", replay + 1);

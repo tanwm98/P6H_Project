@@ -9,6 +9,7 @@
 #define DIGITAL_INPUT_PIN 2    // GP2 for capturing pulses
 #define DIGITAL_OUTPUT_PIN 3   // GP3 for replaying pulses
 #define MAX_TRANSITIONS 20     // 10 highs + 10 lows = 20 total transitions
+#define PULSE_FILE "pulses.csv"
 
 // Structure to store transition timing information
 typedef struct {
@@ -33,5 +34,8 @@ const Transition* get_captured_transitions(uint8_t* count);
 void replay_pulses(uint8_t num_times);
 void save_pulses_to_file(const char* filename);
 bool load_pulses_from_file(const char* filename);
-
+void gpio_callback_digital(uint gpio, uint32_t events); 
+void handle_capture_completion(void);
+bool should_stop_capture(void);
+bool is_capture_complete(void);
 #endif // DIGITAL_H

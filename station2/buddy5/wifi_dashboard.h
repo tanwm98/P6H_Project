@@ -8,6 +8,13 @@
 #include "pico/cyw43_arch.h"
 #include "lwip/tcp.h"
 #include "lwip/ip4_addr.h"
+#include "ntp.h"
+#include "buddy1/sd_card.h"
+#include "buddy2/adc.h"
+#include "buddy2/pwm.h"
+#include "buddy2/digital.h"
+#include "buddy3/protocol_analyzer.h"
+#include "buddy4/swd.h"
 
 // WiFi Configuration
 #define HTTP_PORT 80
@@ -36,6 +43,10 @@ typedef struct {
     bool error_state;
     const char* error_message;
     uint32_t idcode;
+    bool digital_active;
+    uint32_t digital_transition_count;
+    uint32_t last_transition_time;
+    bool last_state;
 } DashboardData;
 
 // Function declarations
@@ -51,7 +62,9 @@ typedef enum {
     BUTTON_PWM = 1,
     BUTTON_ADC = 2,
     BUTTON_PROTOCOL = 3,
-    BUTTON_IDCODE = 4
+    BUTTON_IDCODE = 4,
+    BUTTON_DIGITAL = 5,  
+    BUTTON_REPLAY = 6,
 } DashboardButton;
 void handle_dashboard_button(DashboardButton button);
 

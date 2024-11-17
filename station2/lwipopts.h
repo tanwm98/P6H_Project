@@ -9,7 +9,7 @@
 #ifndef LWIP_SOCKET
 #define LWIP_SOCKET                 0
 #endif
-
+#define LWIP_DISABLE_TCP_SANITY_CHECKS 1
 // Memory Management
 #if PICO_CYW43_ARCH_POLL
 #define MEM_LIBC_MALLOC             1
@@ -21,9 +21,10 @@
 
 // Memory Pools
 #define MEMP_NUM_SYS_TIMEOUT        32    // Added this critical setting
-#define MEMP_NUM_TCP_SEG            32
+#define MEMP_NUM_TCP_SEG            48
 #define MEMP_NUM_ARP_QUEUE          10
-#define PBUF_POOL_SIZE              24
+#define PBUF_POOL_SIZE              32
+#define PBUF_POOL_BUFSIZE          1536   // Add this line
 
 // Core Protocol Support
 #define LWIP_ARP                    1
@@ -36,10 +37,11 @@
 #define LWIP_DNS                    1
 
 // TCP Settings
-#define TCP_WND                     (16 * TCP_MSS)
+#define TCP_WND                     (32 * TCP_MSS)
 #define TCP_MSS                     1460
-#define TCP_SND_BUF                 (8 * TCP_MSS)
-#define TCP_SND_QUEUELEN            ((4 * (TCP_SND_BUF) + (TCP_MSS - 1)) / (TCP_MSS))
+#define TCP_SND_BUF                 (16 * TCP_MSS)
+#define TCP_SND_QUEUELEN            ((8 * (TCP_SND_BUF) + (TCP_MSS - 1)) / (TCP_MSS))
+#define TCP_QUEUE_OOSEQ            1
 #define LWIP_TCP_KEEPALIVE          1
 
 // Network Interface
