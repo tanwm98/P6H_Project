@@ -7,7 +7,6 @@
 #include <stdbool.h>
 
 #define PWM_PIN 7
-#define PWM_BUTTON_PIN 20
 
 typedef struct {
     float frequency;

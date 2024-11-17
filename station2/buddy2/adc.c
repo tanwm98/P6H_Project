@@ -6,7 +6,6 @@
 static ADC_Config adc_config = {
     .capture_buf = NULL,
     .capture_depth = DEFAULT_CAPTURE_DEPTH,
-    .button_pin = ADC_BUTTON_PIN,
     .analog_pin = DEFAULT_ANALOG_PIN,
     .capturing = false,
     .transfer_complete = false,

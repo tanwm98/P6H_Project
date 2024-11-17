@@ -77,18 +77,8 @@ bool init_wifi_dashboard(void) {
 
 void print_network_info(void) {
     ip4_addr_t ip = *netif_ip4_addr(netif_default);
-    ip4_addr_t netmask = *netif_ip4_netmask(netif_default);
-    ip4_addr_t gateway = *netif_ip4_gw(netif_default);
-
-    char ip_str[16], netmask_str[16], gateway_str[16];
+    char ip_str[16];
     ip4addr_ntoa_r(&ip, ip_str, sizeof(ip_str));
-    ip4addr_ntoa_r(&netmask, netmask_str, sizeof(netmask_str));
-    ip4addr_ntoa_r(&gateway, gateway_str, sizeof(gateway_str));
-    
-    printf("\nNetwork Configuration:\n");
-    printf("IP Address: %s\n", ip_str);
-    printf("Netmask: %s\n", netmask_str);
-    printf("Gateway: %s\n", gateway_str);
     printf("\nNavigate to http://%s:%d to access the dashboard\n", ip_str, HTTP_PORT);
 }
 
