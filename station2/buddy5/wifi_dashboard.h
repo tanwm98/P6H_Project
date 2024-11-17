@@ -55,8 +55,16 @@ void update_dashboard_data(DashboardData *data);
 void handle_dashboard_events(void);
 bool is_wifi_connected(void);
 void print_network_info(void);
+typedef struct {
+    const char *data;
+    uint32_t len;
+    uint32_t sent;
+} TCPSendState;
 
-#define HTTP_POST_BUFFER_SIZE 128
+static TCPSendState send_state;
+static err_t tcp_server_sent_callback(void *arg, struct tcp_pcb *tpcb, u16_t len);
+
+#define HTTP_POST_BUFFER_SIZE 512
 
 typedef enum {
     BUTTON_PWM = 1,

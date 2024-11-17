@@ -14,35 +14,6 @@ static err_t http_server_recv(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, e
 static err_t http_server_sent(void *arg, struct tcp_pcb *tpcb, u16_t len);
 static void update_http_response(char *response, const ip4_addr_t *client_ip);
 
-// Add this new helper function to check digital capture status:
-static void update_digital_capture_status(DashboardData *data) {
-    if (data->digital_active) {
-        uint8_t count;
-        const Transition* transitions = get_captured_transitions(&count);
-        
-        if (count > 0) {
-            data->digital_transition_count = count;
-            data->last_state = transitions[count-1].state;
-            data->last_transition_time = transitions[count-1].time;
-        }
-        
-        // Check if capture should be stopped
-        if (is_capture_complete()) {
-            data->digital_active = false;
-            printf("Digital capture auto-stopped. Captured %d transitions\n", count);
-        }
-    }
-}
-
-
-typedef struct {
-    const char *data;
-    uint32_t len;
-    uint32_t sent;
-} TCPSendState;
-
-static TCPSendState send_state;
-static err_t tcp_server_sent_callback(void *arg, struct tcp_pcb *tpcb, u16_t len);
 static err_t tcp_server_sent_callback(void *arg, struct tcp_pcb *tpcb, u16_t len) {
     if (send_state.sent >= send_state.len) {
         // All data sent, close connection
@@ -142,7 +113,6 @@ bool is_wifi_connected(void) {
 }
 
 void update_dashboard_data(DashboardData *data) {
-    update_digital_capture_status(data);
     memcpy(&current_data, data, sizeof(DashboardData));
 }
 
@@ -186,7 +156,6 @@ static void update_http_response(char *response, const ip4_addr_t *client_ip) {
 
                     "<button class=\"btn control-btn %s\" name=\"btn\" value=\"5\">Digital Capture %s</button>"
                     "<button class=\"btn replay-btn\" name=\"btn\" value=\"6\" %s>Replay on GP3</button>"
-                    "<div class=\"measurement\">Transitions: %d | Last State: %s | Last Time: %lu μs</div>"
                     "<div class=\"measurement\">%s</div>"
                 "</form>"
             "</div>"
@@ -375,7 +344,6 @@ void handle_dashboard_button(DashboardButton button) {
                 current_data.digital_transition_count = 0;
                 current_data.last_transition_time = 0;
                 current_data.last_state = false;
-                printf("Starting new digital capture (auto-save enabled)...\n");
             } else {
                 // Manual stop requested
                 current_data.digital_active = false;
