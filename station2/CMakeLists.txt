@@ -4,9 +4,6 @@ add_executable(station2
     buddy2/adc.c
     buddy2/pwm.c
     buddy3/protocol_analyzer.c
-    buddy3/uart.c
-    buddy3/i2c.c
-    buddy3/spi.c
     buddy4/swd.c
     buddy5/dhcpserver/dhcpserver.c
     buddy5/dnsserver/dnsserver.c
